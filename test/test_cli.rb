@@ -46,6 +46,14 @@ class TestCli < Minitest::Test
     assert_match "1 job", out
   end
 
+  def test_update_prints_skipped_count_when_mix_of_valid_and_invalid
+    valid_r   = build_result(prompt_id: "good")
+    invalid_r = build_result(prompt_id: "bad")
+    cli = build_cli(scanner_results: [valid_r, invalid_r], valid: [valid_r])
+    out, = capture_io { cli.update }
+    assert_match "skipped 1 invalid", out
+  end
+
   def test_update_rescues_aias_error
     cli = Aias::CLI.new
     scanner = Object.new
@@ -146,6 +154,14 @@ class TestCli < Minitest::Test
     out, = capture_io { cli.check }
     assert_match "INVALID", out
     assert_match "bad_job", out
+  end
+
+  def test_check_rescues_aias_error
+    cli = Aias::CLI.new
+    scanner = Object.new
+    scanner.define_singleton_method(:scan) { raise Aias::Error, "no prompts dir" }
+    cli.instance_variable_set(:@scanner, scanner)
+    assert_raises(SystemExit) { capture_io { cli.check } }
   end
 
   # ---------------------------------------------------------------------------

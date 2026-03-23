@@ -154,6 +154,26 @@ class TestCrontabManager < Minitest::Test
   end
 
   # ---------------------------------------------------------------------------
+  # read_crontab — exercises the real Open3 path
+  # ---------------------------------------------------------------------------
+
+  def test_read_crontab_returns_empty_when_crontab_exits_nonzero
+    manager = Aias::CrontabManager.new
+    status  = Object.new
+    status.define_singleton_method(:success?) { false }
+    result  = Open3.stub(:capture3, ["", "", status]) { manager.send(:read_crontab) }
+    assert_equal "", result
+  end
+
+  def test_read_crontab_returns_output_when_crontab_succeeds
+    manager = Aias::CrontabManager.new
+    status  = Object.new
+    status.define_singleton_method(:success?) { true }
+    result  = Open3.stub(:capture3, ["0 8 * * * echo hi\n", "", status]) { manager.send(:read_crontab) }
+    assert_equal "0 8 * * * echo hi\n", result
+  end
+
+  # ---------------------------------------------------------------------------
   # current_block — stubbed crontab reads
   # ---------------------------------------------------------------------------
 

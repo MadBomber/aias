@@ -3,6 +3,10 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "aias"
 
+# Eager-load all Zeitwerk-managed files so SimpleCov instruments every class,
+# including those that would otherwise be loaded lazily on first reference.
+Zeitwerk::Loader.eager_load_all
+
 require "minitest/autorun"
 require "minitest/mock"
 
