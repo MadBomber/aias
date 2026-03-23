@@ -167,7 +167,7 @@ module Aias
     # next  (conflicts with Ruby keyword; map the alias)
     # ---------------------------------------------------------------------------
 
-    desc "next [N]", "Show next N scheduled run times for installed jobs (default 5)"
+    desc "next [N]", "Show schedule and last-run time for installed jobs (default 5)"
     map "next" => :upcoming
     def upcoming(n = "5")
       jobs = manager.installed_jobs.first(n.to_i)
@@ -186,7 +186,7 @@ module Aias
         say ""
       end
 
-      say "(Pass N as argument to show N entries. Next-run times require `fugit` gem — v1 shows log timestamps instead.)"
+      say "(Pass N as argument to show N entries. Last-run time is derived from the log file modification timestamp.)"
     end
 
     # ---------------------------------------------------------------------------

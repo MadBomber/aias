@@ -6,9 +6,9 @@ module Aias
   # so it is always safe to call.
   #
   # Usage:
-  #   CronDescriber.describe("0 8 * * *")         # => "every day at 8:00am"
-  #   CronDescriber.describe("0 8 * * 1-5")       # => "every weekday at 8:00am"
-  #   CronDescriber.display("0 8 * * *")           # => "every day at 8:00am (0 8 * * *)"
+  #   CronDescriber.describe("0 8 * * *")         # => "every day at 8am"
+  #   CronDescriber.describe("0 8 * * 1-5")       # => "every weekday at 8am"
+  #   CronDescriber.display("0 8 * * *")           # => "every day at 8am (0 8 * * *)"
   class CronDescriber
     DAYS = %w[Sunday Monday Tuesday Wednesday Thursday Friday Saturday].freeze
 
