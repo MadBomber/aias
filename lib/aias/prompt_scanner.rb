@@ -7,8 +7,11 @@ module Aias
     # Immutable value object representing one discovered scheduled prompt.
     Result = Data.define(:prompt_id, :schedule, :metadata, :file_path)
 
-    def initialize(prompts_dir: ENV["AIA_PROMPTS_DIR"])
-      @prompts_dir = prompts_dir.to_s
+    PROMPTS_DIR_ENVVAR_NEW = "AIA_PROMPTS__DIR"
+    PROMPTS_DIR_ENVVAR_OLD = "AIA_PROMPTS_DIR"
+
+    def initialize(prompts_dir: nil)
+      @prompts_dir = (prompts_dir || ENV[PROMPTS_DIR_ENVVAR_NEW] || ENV[PROMPTS_DIR_ENVVAR_OLD]).to_s
     end
 
     # Returns Array<Result> of all prompts with a non-empty schedule: key.
@@ -18,11 +21,47 @@ module Aias
       candidate_files.filter_map { |path| build_result(path) }
     end
 
+    # Parses a single prompt file by path (relative or absolute).
+    # Derives the prompt_id using the configured prompts_dir.
+    # Raises Aias::Error when the file is missing/unreadable, lies outside
+    # the prompts directory, or carries no schedule: in its frontmatter.
+    def scan_one(path)
+      absolute = File.expand_path(path)
+
+      raise Aias::Error, "Prompt file not found: #{absolute}"    unless File.exist?(absolute)
+      raise Aias::Error, "Prompt file not readable: #{absolute}" unless File.readable?(absolute)
+
+      validate_prompts_dir!
+
+      base = @prompts_dir.chomp("/")
+      unless absolute.start_with?("#{base}/")
+        raise Aias::Error, "'#{absolute}' is not inside the prompts directory '#{@prompts_dir}'"
+      end
+
+      parsed, schedule = begin
+        p = PM.parse(absolute)
+        [p, p.metadata&.schedule]
+      rescue => e
+        raise Aias::Error, "Failed to parse '#{prompt_id_for(absolute)}': #{e.message}"
+      end
+
+      if schedule.nil? || schedule.to_s.strip.empty?
+        raise Aias::Error, "'#{prompt_id_for(absolute)}' has no schedule: in its frontmatter"
+      end
+
+      Result.new(
+        prompt_id: prompt_id_for(absolute),
+        schedule:  schedule.to_s.strip,
+        metadata:  parsed.metadata,
+        file_path: absolute
+      )
+    end
+
     private
 
     def validate_prompts_dir!
       if @prompts_dir.empty?
-        raise Aias::Error, "AIA_PROMPTS_DIR is not set"
+        raise Aias::Error, "#{PROMPTS_DIR_ENVVAR_NEW} (or #{PROMPTS_DIR_ENVVAR_OLD}) is not set"
       end
       unless File.directory?(@prompts_dir)
         raise Aias::Error, "AIA_PROMPTS_DIR '#{@prompts_dir}' does not exist"

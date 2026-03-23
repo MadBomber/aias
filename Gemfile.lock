@@ -3,9 +3,9 @@ PATH
   specs:
     aias (0.1.0)
       aia
+      fugit
       prompt_manager
       thor
-      whenever
       zeitwerk
 
 GEM
@@ -29,6 +29,8 @@ GEM
       tty-screen
       tty-spinner
       word_wrapper
+    aigcm (0.3.2)
+      ruby_llm
     amazing_print (2.0.0)
     anyway_config (2.8.0)
       ruby-next-core (~> 1.0)
@@ -40,15 +42,19 @@ GEM
       traces (~> 0.18)
     base64 (0.3.0)
     bigdecimal (3.3.1)
-    chronic (0.10.2)
     clipboard (2.0.0)
+    concurrent-ruby (1.3.6)
     console (1.34.3)
       fiber-annotation
       fiber-local (~> 1.1)
       json
     date (3.5.1)
+    debug_me (1.1.3)
     docile (1.4.1)
+    drb (2.2.3)
     erb (6.0.2)
+    et-orbi (1.4.0)
+      tzinfo
     event_stream_parser (1.0.0)
     faraday (2.14.1)
       faraday-net_http (>= 2.0, < 3.5)
@@ -64,6 +70,9 @@ GEM
     fiber-local (1.1.0)
       fiber-storage
     fiber-storage (1.0.1)
+    fugit (1.12.1)
+      et-orbi (~> 1.4)
+      raabro (~> 1.4)
     http-2 (1.1.3)
     httpx (1.7.5)
       http-2 (>= 1.1.3)
@@ -83,7 +92,9 @@ GEM
       logger
     marcel (1.1.0)
     metrics (0.15.0)
-    minitest (5.27.0)
+    minitest (6.0.2)
+      drb (~> 2.0)
+      prism (~> 1.5)
     multipart-post (2.4.1)
     myway_config (0.1.2)
       anyway_config (>= 2.0)
@@ -100,6 +111,7 @@ GEM
       date
       stringio
     public_suffix (7.0.5)
+    raabro (1.4.0)
     rake (13.3.1)
     rdoc (7.2.0)
       erb
@@ -140,9 +152,9 @@ GEM
     tty-screen (0.8.2)
     tty-spinner (0.9.3)
       tty-cursor (~> 0.7)
+    tzinfo (2.0.6)
+      concurrent-ruby (~> 1.0)
     uri (1.1.1)
-    whenever (1.1.2)
-      chronic (>= 0.6.3)
     word_wrapper (0.5.0)
     zeitwerk (2.7.5)
 
@@ -152,26 +164,32 @@ PLATFORMS
 
 DEPENDENCIES
   aias!
+  aigcm
+  debug_me
   irb
-  minitest (~> 5.16)
-  rake (~> 13.0)
+  minitest
+  rake
   simplecov
 
 CHECKSUMS
   addressable (2.8.9) sha256=cc154fcbe689711808a43601dee7b980238ce54368d23e127421753e46895485
   aia (1.0.0) sha256=04ccfa275f350562748afe96ba992e4b9773944cc56a20c2ddc0bcb00b090078
   aias (0.1.0)
+  aigcm (0.3.2) sha256=eda5055a4bc1dd021f860b08134bf122f9df2e283da5be6719d1dde98a23428a
   amazing_print (2.0.0) sha256=2e36aba46ac78d37ed27ca0e2056afe3583183bb5c64f157c246b267355e5d6a
   anyway_config (2.8.0) sha256=f6797a7231f81202dcd3d0c07284e836e45713e761d320180348b13a5c7c9306
   async (2.38.1) sha256=72ba6b7de04d852355458bfe891221226bb7d29f055f5cb043ae3345497f8cec
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   bigdecimal (3.3.1) sha256=eaa01e228be54c4f9f53bf3cc34fe3d5e845c31963e7fcc5bedb05a4e7d52218
-  chronic (0.10.2) sha256=766f2fcce6ac3cc152249ed0f2b827770d3e517e2e87c5fba7ed74f4889d2dc3
   clipboard (2.0.0) sha256=88d048fd2097506451c382d3ecf3acd9cdf24f581d8119437e55c1efc04e01c8
+  concurrent-ruby (1.3.6) sha256=6b56837e1e7e5292f9864f34b69c5a2cbc75c0cf5338f1ce9903d10fa762d5ab
   console (1.34.3) sha256=869fbd74697efc4c606f102d2812b0b008e4e7fd738a91c591e8577140ec0dcc
   date (3.5.1) sha256=750d06384d7b9c15d562c76291407d89e368dda4d4fff957eb94962d325a0dc0
+  debug_me (1.1.3) sha256=ae8cf61993350d9b3cbe337a7f9a0f595be5b4976c10891a4e1eacc63d09f717
   docile (1.4.1) sha256=96159be799bfa73cdb721b840e9802126e4e03dfc26863db73647204c727f21e
+  drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   erb (6.0.2) sha256=9fe6264d44f79422c87490a1558479bd0e7dad4dd0e317656e67ea3077b5242b
+  et-orbi (1.4.0) sha256=6c7e3c90779821f9e3b324c5e96fda9767f72995d6ae435b96678a4f3e2de8bc
   event_stream_parser (1.0.0) sha256=a2683bab70126286f8184dc88f7968ffc4028f813161fb073ec90d171f7de3c8
   faraday (2.14.1) sha256=a43cceedc1e39d188f4d2cdd360a8aaa6a11da0c407052e426ba8d3fb42ef61c
   faraday-multipart (1.2.0) sha256=7d89a949693714176f612323ca13746a2ded204031a6ba528adee788694ef757
@@ -180,6 +198,7 @@ CHECKSUMS
   fiber-annotation (0.2.0) sha256=7abfadf1d119f508867d4103bf231c0354d019cc39a5738945dec2edadaf6c03
   fiber-local (1.1.0) sha256=c885f94f210fb9b05737de65d511136ea602e00c5105953748aa0f8793489f06
   fiber-storage (1.0.1) sha256=f48e5b6d8b0be96dac486332b55cee82240057065dc761c1ea692b2e719240e1
+  fugit (1.12.1) sha256=5898f478ede9b415f0804e42b8f3fd53f814bd85eebffceebdbc34e1107aaf68
   http-2 (1.1.3) sha256=1b2f379d35a11dbae94f8a1a52c053d8c161eb4a0c98b5d1605ff1b2bf171c9c
   httpx (1.7.5) sha256=f002b7728ad108b721ab9c4e02b17b5c780581d490cd13245fc3d5c5b7127b6e
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
@@ -191,7 +210,7 @@ CHECKSUMS
   lumberjack (2.0.5) sha256=27a105dc827d0fdb7c136c0fbb595775a58e9ed8b94442c4295820ede7b82cdd
   marcel (1.1.0) sha256=fdcfcfa33cc52e93c4308d40e4090a5d4ea279e160a7f6af988260fa970e0bee
   metrics (0.15.0) sha256=61ded5bac95118e995b1bc9ed4a5f19bc9814928a312a85b200abbdac9039072
-  minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
+  minitest (6.0.2) sha256=db6e57956f6ecc6134683b4c87467d6dd792323c7f0eea7b93f66bd284adbc3d
   multipart-post (2.4.1) sha256=9872d03a8e552020ca096adadbf5e3cb1cd1cdd6acd3c161136b8a5737cdb4a8
   myway_config (0.1.2) sha256=c91741ded05babc443fcf5d012741ded8a1a1998c40a689cb32af27940b66be3
   net-http (0.9.1) sha256=25ba0b67c63e89df626ed8fac771d0ad24ad151a858af2cc8e6a716ca4336996
@@ -202,6 +221,7 @@ CHECKSUMS
   prompt_manager (1.0.2) sha256=ec19631fc90d092df1d7d08aa3d523636f55a3725b90635afc1fae7d60609e31
   psych (5.3.1) sha256=eb7a57cef10c9d70173ff74e739d843ac3b2c019a003de48447b2963d81b1974
   public_suffix (7.0.5) sha256=1a8bb08f1bbea19228d3bed6e5ed908d1cb4f7c2726d18bd9cadf60bc676f623
+  raabro (1.4.0) sha256=d4fa9ff5172391edb92b242eed8be802d1934b1464061ae5e70d80962c5da882
   rake (13.3.1) sha256=8c9e89d09f66a26a01264e7e3480ec0607f0c497a861ef16063604b1b08eb19c
   rdoc (7.2.0) sha256=8650f76cd4009c3b54955eb5d7e3a075c60a57276766ebf36f9085e8c9f23192
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
@@ -221,8 +241,8 @@ CHECKSUMS
   tty-cursor (0.7.1) sha256=79534185e6a777888d88628b14b6a1fdf5154a603f285f80b1753e1908e0bf48
   tty-screen (0.8.2) sha256=c090652115beae764336c28802d633f204fb84da93c6a968aa5d8e319e819b50
   tty-spinner (0.9.3) sha256=0e036f047b4ffb61f2aa45f5a770ec00b4d04130531558a94bfc5b192b570542
+  tzinfo (2.0.6) sha256=8daf828cc77bcf7d63b0e3bdb6caa47e2272dcfaf4fbfe46f8c3a9df087a829b
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
-  whenever (1.1.2) sha256=af139a25cf6b5c7d2122686724c0b9a4a7495135a1f79a404e29f4cce48abd83
   word_wrapper (0.5.0) sha256=ca636087a979c541508737e2b1742c5763d0fd48168370d76e6fdc4be6f65d3a
   zeitwerk (2.7.5) sha256=d8da92128c09ea6ec62c949011b00ed4a20242b255293dd66bf41545398f73dd
 

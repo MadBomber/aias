@@ -4,251 +4,262 @@ require "test_helper"
 require "tmpdir"
 
 class TestCrontabManager < Minitest::Test
-  LOG_BASE = File.expand_path("~/.aia/schedule/logs")
+  # ---------------------------------------------------------------------------
+  # Setup / teardown
+  # ---------------------------------------------------------------------------
 
-  # Sample whenever-generated crontab block (mimics real output)
-  SAMPLE_BLOCK = <<~CRON
-    # Begin Whenever generated tasks for: aias at: 2025-01-01 08:00:00 +0000
-    0 8 * * * /bin/bash -l -c "aia daily_digest >> #{LOG_BASE}/daily_digest.log 2>&1"
-    0 9 * * 1 /bin/bash -l -c "aia reports/weekly >> #{LOG_BASE}/reports/weekly.log 2>&1"
-    # End Whenever generated tasks for: aias at: 2025-01-01 08:00:00 +0000
-  CRON
+  def setup
+    @tmpdir        = Dir.mktmpdir("aias_cron_test_")
+    @log_base      = File.join(@tmpdir, "logs")
+    @crontab_state = File.join(@tmpdir, "crontab_state")
+    @fake_crontab  = write_fake_crontab(@tmpdir, @crontab_state)
+  end
 
-  # A crontab that also has non-aias entries
-  MIXED_CRONTAB = <<~CRON
-    # This is a user-managed entry
-    0 7 * * * echo "good morning"
-
-    # Begin Whenever generated tasks for: aias at: 2025-01-01 08:00:00 +0000
-    0 8 * * * /bin/bash -l -c "aia daily_digest >> #{LOG_BASE}/daily_digest.log 2>&1"
-    # End Whenever generated tasks for: aias at: 2025-01-01 08:00:00 +0000
-
-    # Another user entry
-    0 23 * * * echo "goodnight"
-  CRON
+  def teardown
+    FileUtils.remove_entry(@tmpdir)
+  end
 
   # ---------------------------------------------------------------------------
   # dry_run — safe (no system calls)
   # ---------------------------------------------------------------------------
 
   def test_dry_run_returns_cron_string
-    manager = Aias::CrontabManager.new
-    dsl = build_job_dsl("daily_digest", "0 8 * * *")
-    output = manager.dry_run(dsl)
+    output = new_manager.dry_run(build_job_dsl("daily_digest", "0 8 * * *"))
     assert_kind_of String, output
     assert_match "0 8 * * *", output
   end
 
   def test_dry_run_includes_prompt_id
-    manager = Aias::CrontabManager.new
-    dsl = build_job_dsl("daily_digest", "0 8 * * *")
-    output = manager.dry_run(dsl)
+    output = new_manager.dry_run(build_job_dsl("daily_digest", "0 8 * * *"))
     assert_match "aia daily_digest", output
   end
 
   def test_dry_run_does_not_touch_crontab
-    manager = Aias::CrontabManager.new
-    # If crontab were called, the stub would fail with an unexpected call
-    Open3.stub(:capture3, ->(*_) { raise "crontab should not be called!" }) do
-      Whenever::CommandLine.stub(:execute, ->(*_) { raise "CommandLine should not be called!" }) do
-        manager.dry_run(build_job_dsl("x", "0 8 * * *"))
-      end
-    end
-    pass "dry_run made no system calls"
+    new_manager.dry_run(build_job_dsl("x", "0 8 * * *"))
+    refute File.exist?(@crontab_state), "dry_run must not write to the crontab"
   end
 
   # ---------------------------------------------------------------------------
-  # install — stubbed to avoid touching crontab
+  # install — real write via fake crontab script
   # ---------------------------------------------------------------------------
 
-  def test_install_calls_whenever_command_line_with_update
-    manager = Aias::CrontabManager.new
-    called_with = nil
-
-    Whenever::CommandLine.stub(:execute, ->(opts) { called_with = opts; 0 }) do
-      manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
-    end
-
-    assert_equal true, called_with[:update]
+  def test_install_writes_crontab_entry
+    new_manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
+    jobs = new_manager.installed_jobs
+    assert_equal 1, jobs.size
+    assert_equal "daily_digest", jobs.first[:prompt_id]
   end
 
-  def test_install_uses_aias_identifier
-    manager = Aias::CrontabManager.new
-    called_with = nil
-
-    Whenever::CommandLine.stub(:execute, ->(opts) { called_with = opts; 0 }) do
-      manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
-    end
-
-    assert_equal "aias", called_with[:identifier]
+  def test_install_cron_expression_is_correct
+    new_manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
+    job = new_manager.installed_jobs.first
+    assert_equal "0 8 * * *", job[:cron_expr]
   end
 
-  def test_install_passes_console_false
-    manager = Aias::CrontabManager.new
-    called_with = nil
-
-    Whenever::CommandLine.stub(:execute, ->(opts) { called_with = opts; 0 }) do
+  def test_install_raises_on_crontab_write_failure
+    broken = File.join(@tmpdir, "broken_crontab")
+    File.write(broken, "#!/bin/bash\nexit 1\n")
+    File.chmod(0o755, broken)
+    manager = Aias::CrontabManager.new(crontab_command: broken, log_base: @log_base)
+    assert_raises(Aias::Error) do
       manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
-    end
-
-    assert_equal false, called_with[:console]
-  end
-
-  def test_install_raises_on_whenever_failure
-    manager = Aias::CrontabManager.new
-    Whenever::CommandLine.stub(:execute, ->(_opts) { 1 }) do
-      assert_raises(Aias::Error) do
-        manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
-      end
     end
   end
 
   def test_install_creates_log_base_directory
-    manager = Aias::CrontabManager.new
-    mkdir_calls = []
-
-    FileUtils.stub(:mkdir_p, ->(path) { mkdir_calls << path }) do
-      Whenever::CommandLine.stub(:execute, ->(_opts) { 0 }) do
-        manager.install(build_job_dsl("x", "0 8 * * *"))
-      end
-    end
-
-    assert_includes mkdir_calls, Aias::CrontabManager::LOG_BASE
+    new_manager.install(build_job_dsl("x", "0 8 * * *"))
+    assert File.directory?(@log_base), "install should create the log base directory"
   end
 
   # ---------------------------------------------------------------------------
-  # clear — stubbed
+  # clear — real write via fake crontab script
   # ---------------------------------------------------------------------------
 
-  def test_clear_calls_whenever_command_line_with_clear
-    manager = Aias::CrontabManager.new
-    called_with = nil
-
-    Whenever::CommandLine.stub(:execute, ->(opts) { called_with = opts; 0 }) do
-      manager.clear
-    end
-
-    assert_equal true, called_with[:clear]
+  def test_clear_removes_aias_entries
+    new_manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
+    refute_empty new_manager.installed_jobs  # verify pre-condition
+    new_manager.clear
+    assert_empty new_manager.installed_jobs
   end
 
-  def test_clear_uses_aias_identifier
-    manager = Aias::CrontabManager.new
-    called_with = nil
-
-    Whenever::CommandLine.stub(:execute, ->(opts) { called_with = opts; 0 }) do
-      manager.clear
-    end
-
-    assert_equal "aias", called_with[:identifier]
-  end
-
-  def test_clear_passes_console_false
-    manager = Aias::CrontabManager.new
-    called_with = nil
-
-    Whenever::CommandLine.stub(:execute, ->(opts) { called_with = opts; 0 }) do
-      manager.clear
-    end
-
-    assert_equal false, called_with[:console]
+  def test_clear_leaves_non_aias_entries_intact
+    # Pre-populate the crontab with a user-managed entry plus an aias block.
+    preset_crontab(mixed_crontab)
+    new_manager.clear
+    content = File.read(@crontab_state)
+    assert_match "good morning", content, "clear must not remove non-aias entries"
   end
 
   # ---------------------------------------------------------------------------
-  # read_crontab — exercises the real Open3 path
+  # read_crontab — exercises real fake crontab
   # ---------------------------------------------------------------------------
 
   def test_read_crontab_returns_empty_when_crontab_exits_nonzero
-    manager = Aias::CrontabManager.new
-    status  = Object.new
-    status.define_singleton_method(:success?) { false }
-    result  = Open3.stub(:capture3, ["", "", status]) { manager.send(:read_crontab) }
+    # State file absent → fake crontab exits 1 → read_crontab returns ""
+    result = new_manager.send(:read_crontab)
     assert_equal "", result
   end
 
   def test_read_crontab_returns_output_when_crontab_succeeds
-    manager = Aias::CrontabManager.new
-    status  = Object.new
-    status.define_singleton_method(:success?) { true }
-    result  = Open3.stub(:capture3, ["0 8 * * * echo hi\n", "", status]) { manager.send(:read_crontab) }
+    File.write(@crontab_state, "0 8 * * * echo hi\n")
+    result = new_manager.send(:read_crontab)
     assert_equal "0 8 * * * echo hi\n", result
   end
 
   # ---------------------------------------------------------------------------
-  # current_block — stubbed crontab reads
+  # current_block — stubbed crontab via preset_crontab
   # ---------------------------------------------------------------------------
 
   def test_current_block_returns_empty_when_no_aias_block
-    manager = stub_crontab("0 7 * * * echo hello\n")
-    assert_equal "", manager.current_block
+    preset_crontab("0 7 * * * echo hello\n")
+    assert_equal "", new_manager.current_block
   end
 
   def test_current_block_returns_empty_when_no_crontab
-    manager = stub_crontab("")
-    assert_equal "", manager.current_block
+    # No state file → empty crontab
+    assert_equal "", new_manager.current_block
   end
 
   def test_current_block_extracts_aias_lines
-    manager = stub_crontab(SAMPLE_BLOCK)
-    block = manager.current_block
+    preset_crontab(sample_block)
+    block = new_manager.current_block
     assert_match "aia daily_digest", block
     assert_match "aia reports/weekly", block
   end
 
   def test_current_block_excludes_marker_lines
-    manager = stub_crontab(SAMPLE_BLOCK)
-    block = manager.current_block
-    refute_match "Begin Whenever", block
-    refute_match "End Whenever", block
+    preset_crontab(sample_block)
+    block = new_manager.current_block
+    refute_match "BEGIN aias", block
+    refute_match "END aias", block
   end
 
   def test_current_block_excludes_non_aias_entries
-    manager = stub_crontab(MIXED_CRONTAB)
-    block = manager.current_block
+    preset_crontab(mixed_crontab)
+    block = new_manager.current_block
     refute_match "good morning", block
     refute_match "goodnight", block
   end
 
   # ---------------------------------------------------------------------------
-  # installed_jobs — parsed from stubbed crontab
+  # installed_jobs — parsed from preset crontab
   # ---------------------------------------------------------------------------
 
   def test_installed_jobs_returns_empty_when_no_block
-    manager = stub_crontab("")
-    assert_equal [], manager.installed_jobs
+    assert_equal [], new_manager.installed_jobs
   end
 
-  def test_installed_jobs_returns_one_job
-    manager = stub_crontab(SAMPLE_BLOCK)
-    assert_equal 2, manager.installed_jobs.size
+  def test_installed_jobs_returns_correct_count
+    preset_crontab(sample_block)
+    assert_equal 2, new_manager.installed_jobs.size
   end
 
   def test_installed_jobs_has_expected_keys
-    manager = stub_crontab(SAMPLE_BLOCK)
-    job = manager.installed_jobs.first
+    preset_crontab(sample_block)
+    job = new_manager.installed_jobs.first
     assert_includes job.keys, :prompt_id
     assert_includes job.keys, :cron_expr
     assert_includes job.keys, :log_path
   end
 
   def test_installed_jobs_prompt_id_is_correct
-    manager = stub_crontab(SAMPLE_BLOCK)
-    ids = manager.installed_jobs.map { |j| j[:prompt_id] }
+    preset_crontab(sample_block)
+    ids = new_manager.installed_jobs.map { |j| j[:prompt_id] }
     assert_includes ids, "daily_digest"
     assert_includes ids, "reports/weekly"
   end
 
   def test_installed_jobs_cron_expr_is_correct
-    manager = stub_crontab(SAMPLE_BLOCK)
-    exprs = manager.installed_jobs.map { |j| j[:cron_expr] }
+    preset_crontab(sample_block)
+    exprs = new_manager.installed_jobs.map { |j| j[:cron_expr] }
     assert_includes exprs, "0 8 * * *"
     assert_includes exprs, "0 9 * * 1"
   end
 
   def test_installed_jobs_log_path_is_correct
-    manager = stub_crontab(SAMPLE_BLOCK)
-    paths = manager.installed_jobs.map { |j| j[:log_path] }
-    assert_includes paths, "#{LOG_BASE}/daily_digest.log"
-    assert_includes paths, "#{LOG_BASE}/reports/weekly.log"
+    preset_crontab(sample_block)
+    paths = new_manager.installed_jobs.map { |j| j[:log_path] }
+    assert_includes paths, "#{@log_base}/daily_digest.log"
+    assert_includes paths, "#{@log_base}/reports/weekly.log"
+  end
+
+  def test_installed_jobs_parses_entries_with_prompts_dir_flag
+    block = <<~CRON
+      # BEGIN aias
+      0 8 * * * /bin/bash -l -c 'aia --prompts-dir /data/prompts daily_digest >> #{@log_base}/daily_digest.log 2>&1'
+      0 9 * * 1 /bin/bash -l -c 'aia --prompts-dir /data/prompts reports/weekly >> #{@log_base}/reports/weekly.log 2>&1'
+      # END aias
+    CRON
+    preset_crontab(block)
+    jobs = new_manager.installed_jobs
+    assert_equal 2, jobs.size
+    ids = jobs.map { |j| j[:prompt_id] }
+    assert_includes ids, "daily_digest"
+    assert_includes ids, "reports/weekly"
+  end
+
+  def test_installed_jobs_prompt_id_not_confused_with_prompts_dir_value
+    block = <<~CRON
+      # BEGIN aias
+      0 8 * * * /bin/bash -l -c 'aia --prompts-dir /data/prompts daily_digest >> #{@log_base}/daily_digest.log 2>&1'
+      # END aias
+    CRON
+    preset_crontab(block)
+    job = new_manager.installed_jobs.first
+    assert_equal "daily_digest", job[:prompt_id],
+      "prompt_id must be 'daily_digest', not the --prompts-dir path value"
+  end
+
+  # ---------------------------------------------------------------------------
+  # add_job — upsert a single entry
+  # ---------------------------------------------------------------------------
+
+  def test_add_job_installs_entry_when_block_is_empty
+    new_manager.add_job(build_job_dsl("standup", "0 9 * * 1-5"), "standup")
+    jobs = new_manager.installed_jobs
+    assert_equal 1, jobs.size
+    assert_equal "standup", jobs.first[:prompt_id]
+  end
+
+  def test_add_job_appends_to_existing_entries
+    new_manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
+    new_manager.add_job(build_job_dsl("standup", "0 9 * * 1-5"), "standup")
+    ids = new_manager.installed_jobs.map { |j| j[:prompt_id] }
+    assert_includes ids, "daily_digest"
+    assert_includes ids, "standup"
+  end
+
+  def test_add_job_replaces_existing_entry_for_same_prompt_id
+    new_manager.install(build_job_dsl("standup", "0 8 * * *"))
+    new_manager.add_job(build_job_dsl("standup", "0 10 * * *"), "standup")
+    jobs = new_manager.installed_jobs.select { |j| j[:prompt_id] == "standup" }
+    assert_equal 1, jobs.size, "duplicate entries must not be created on re-add"
+    assert_equal "0 10 * * *", jobs.first[:cron_expr]
+  end
+
+  def test_add_job_leaves_other_entries_untouched
+    new_manager.install([
+      build_job_dsl("alpha", "0 8 * * *"),
+      build_job_dsl("beta",  "0 10 * * *")
+    ])
+    new_manager.add_job(build_job_dsl("gamma", "0 12 * * *"), "gamma")
+    ids = new_manager.installed_jobs.map { |j| j[:prompt_id] }
+    assert_includes ids, "alpha"
+    assert_includes ids, "beta"
+    assert_includes ids, "gamma"
+  end
+
+  def test_add_job_preserves_non_aias_crontab_entries
+    preset_crontab(mixed_crontab)
+    new_manager.add_job(build_job_dsl("standup", "0 9 * * 1-5"), "standup")
+    content = File.read(@crontab_state)
+    assert_match "good morning", content
+    assert_match "goodnight", content
+  end
+
+  def test_add_job_creates_log_base_directory
+    new_manager.add_job(build_job_dsl("standup", "0 9 * * 1-5"), "standup")
+    assert File.directory?(@log_base)
   end
 
   # ---------------------------------------------------------------------------
@@ -256,15 +267,11 @@ class TestCrontabManager < Minitest::Test
   # ---------------------------------------------------------------------------
 
   def test_ensure_log_directories_creates_nested_dirs
-    mkdir_calls = []
-    FileUtils.stub(:mkdir_p, ->(path) { mkdir_calls << path }) do
-      manager = Aias::CrontabManager.new
-      manager.ensure_log_directories(["reports/weekly", "daily_digest"])
-    end
-    # "reports/weekly" → mkdir_p(<LOG_BASE>/reports)
-    assert mkdir_calls.any? { |p| p.to_s.end_with?("reports") }
-    # "daily_digest" → mkdir_p(<LOG_BASE>) since File.dirname of a flat file is its dir
-    assert mkdir_calls.any? { |p| p.to_s == LOG_BASE }
+    new_manager.ensure_log_directories(["reports/weekly", "daily_digest"])
+    # "reports/weekly" → <log_base>/reports/
+    assert File.directory?(File.join(@log_base, "reports"))
+    # "daily_digest"   → <log_base>/   (dirname of daily_digest.log)
+    assert File.directory?(@log_base)
   end
 
   # ---------------------------------------------------------------------------
@@ -273,19 +280,36 @@ class TestCrontabManager < Minitest::Test
 
   private
 
-  # Returns a CrontabManager whose read_crontab is stubbed to return the given text.
-  def stub_crontab(text)
-    manager = Aias::CrontabManager.new
-    status = Object.new
-    status.define_singleton_method(:success?) { true }
-    Open3.stub(:capture3, [text, "", status]) do
-      # Eagerly test current_block — but we can't pre-warm private method here.
-      # Instead return a manager that stubs Open3 at call time via a wrapper.
-    end
+  # Builds a CrontabManager pointing at the test's fake crontab script.
+  def new_manager
+    Aias::CrontabManager.new(crontab_command: @fake_crontab, log_base: @log_base)
+  end
 
-    # Patch the private read_crontab by reopening the instance
-    manager.define_singleton_method(:read_crontab) { text }
-    manager
+  # Writes content to the crontab state file so the fake crontab "has" it.
+  def preset_crontab(content)
+    File.write(@crontab_state, content)
+  end
+
+  # Creates a shell script that simulates the crontab(1) command.
+  # State is persisted in state_file across invocations.
+  # Supports: -l (list), - (write from stdin), -r (remove).
+  def write_fake_crontab(dir, state_file)
+    path = File.join(dir, "fake_crontab")
+    File.write(path, <<~BASH)
+      #!/bin/bash
+      STATE="#{state_file}"
+      if [ "$1" = "-l" ]; then
+        if [ -f "$STATE" ]; then cat "$STATE"; exit 0; else exit 1; fi
+      elif [ "$1" = "-" ]; then
+        cat > "$STATE"; exit 0
+      elif [ "$1" = "-r" ]; then
+        rm -f "$STATE"; exit 0
+      else
+        exit 1
+      fi
+    BASH
+    File.chmod(0o755, path)
+    path
   end
 
   # Build a minimal valid whenever DSL for a single prompt.
@@ -293,5 +317,30 @@ class TestCrontabManager < Minitest::Test
     Aias::JobBuilder.new(shell: "/bin/bash").build(
       build_result(prompt_id: prompt_id, schedule: schedule)
     )
+  end
+
+  # Sample aias crontab block using test log_base.
+  def sample_block
+    <<~CRON
+      # BEGIN aias
+      0 8 * * * /bin/bash -l -c 'aia daily_digest >> #{@log_base}/daily_digest.log 2>&1'
+      0 9 * * 1 /bin/bash -l -c 'aia reports/weekly >> #{@log_base}/reports/weekly.log 2>&1'
+      # END aias
+    CRON
+  end
+
+  # A crontab that contains both non-aias and aias entries.
+  def mixed_crontab
+    <<~CRON
+      # This is a user-managed entry
+      0 7 * * * echo "good morning"
+
+      # BEGIN aias
+      0 8 * * * /bin/bash -l -c 'aia daily_digest >> #{@log_base}/daily_digest.log 2>&1'
+      # END aias
+
+      # Another user entry
+      0 23 * * * echo "goodnight"
+    CRON
   end
 end

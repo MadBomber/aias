@@ -2,7 +2,7 @@
 
 require "zeitwerk"
 require "thor"
-require "whenever"
+require "fugit"
 require "pm"
 
 require_relative "aias/version"

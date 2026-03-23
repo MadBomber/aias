@@ -6,13 +6,16 @@ require "tmpdir"
 class TestPromptScanner < Minitest::Test
   def setup
     @prompts_dir = Dir.mktmpdir("aias_test_")
-    @original_env = ENV["AIA_PROMPTS_DIR"]
-    ENV["AIA_PROMPTS_DIR"] = @prompts_dir
+    @original_env_old = ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_OLD]
+    @original_env_new = ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_NEW]
+    ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_OLD] = @prompts_dir
+    ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_NEW] = nil
   end
 
   def teardown
     FileUtils.remove_entry(@prompts_dir)
-    ENV["AIA_PROMPTS_DIR"] = @original_env
+    ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_OLD] = @original_env_old
+    ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_NEW] = @original_env_new
   end
 
   # ---------------------------------------------------------------------------
@@ -37,8 +40,21 @@ class TestPromptScanner < Minitest::Test
   # ---------------------------------------------------------------------------
 
   def test_scan_raises_when_prompts_dir_nil
+    # nil means "use env vars"; clear both so there is genuinely nothing configured
+    ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_NEW] = nil
+    ENV[Aias::PromptScanner::PROMPTS_DIR_ENVVAR_OLD] = nil
     scanner = Aias::PromptScanner.new(prompts_dir: nil)
     assert_raises(Aias::Error) { scanner.scan }
+  end
+
+  def test_scan_uses_explicit_prompts_dir_over_env_vars
+    other_dir = Dir.mktmpdir("aias_other_")
+    write_prompt("env_test.md", schedule: "0 8 * * *")  # in @prompts_dir (env var)
+    scanner = Aias::PromptScanner.new(prompts_dir: other_dir)  # points elsewhere
+    results = scanner.scan
+    assert_empty results, "explicit prompts_dir should take precedence over env vars"
+  ensure
+    FileUtils.remove_entry(other_dir)
   end
 
   def test_scan_raises_when_prompts_dir_empty_string
@@ -174,9 +190,99 @@ class TestPromptScanner < Minitest::Test
 
   def test_scan_uses_env_prompts_dir_by_default
     write_prompt("env_test.md", schedule: "0 8 * * *")
-    scanner = Aias::PromptScanner.new  # uses ENV["AIA_PROMPTS_DIR"]
+    scanner = Aias::PromptScanner.new  # uses AIA_PROMPTS__DIR or AIA_PROMPTS_DIR from ENV
     results = scanner.scan
     assert_equal 1, results.size
+  end
+
+  # ---------------------------------------------------------------------------
+  # scan_one — happy path
+  # ---------------------------------------------------------------------------
+
+  def test_scan_one_returns_result_for_scheduled_prompt
+    write_prompt("job.md", schedule: "0 8 * * *")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    result  = scanner.scan_one(File.join(@prompts_dir, "job.md"))
+    assert_instance_of Aias::PromptScanner::Result, result
+  end
+
+  def test_scan_one_derives_simple_prompt_id
+    write_prompt("standup.md", schedule: "0 9 * * 1-5")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    result  = scanner.scan_one(File.join(@prompts_dir, "standup.md"))
+    assert_equal "standup", result.prompt_id
+  end
+
+  def test_scan_one_derives_nested_prompt_id
+    FileUtils.mkdir_p(File.join(@prompts_dir, "reports"))
+    write_prompt("reports/weekly.md", schedule: "0 9 * * 1")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    result  = scanner.scan_one(File.join(@prompts_dir, "reports/weekly.md"))
+    assert_equal "reports/weekly", result.prompt_id
+  end
+
+  def test_scan_one_expands_relative_path
+    write_prompt("job.md", schedule: "0 8 * * *")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    # Change to prompts_dir and pass a relative path; File.expand_path should resolve it.
+    abs_path = File.join(@prompts_dir, "job.md")
+    result   = scanner.scan_one(abs_path)
+    assert_equal File.expand_path(abs_path), result.file_path
+  end
+
+  def test_scan_one_returns_correct_schedule
+    write_prompt("job.md", schedule: "every weekday at 8am")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    result  = scanner.scan_one(File.join(@prompts_dir, "job.md"))
+    assert_equal "every weekday at 8am", result.schedule
+  end
+
+  # ---------------------------------------------------------------------------
+  # scan_one — error cases
+  # ---------------------------------------------------------------------------
+
+  def test_scan_one_raises_when_file_not_found
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    err = assert_raises(Aias::Error) do
+      scanner.scan_one(File.join(@prompts_dir, "nonexistent.md"))
+    end
+    assert_match "not found", err.message
+  end
+
+  def test_scan_one_raises_when_file_is_outside_prompts_dir
+    other_dir = Dir.mktmpdir("aias_outside_")
+    outside   = File.join(other_dir, "outside.md")
+    File.write(outside, "---\nschedule: \"0 8 * * *\"\n---\nContent.\n")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    err = assert_raises(Aias::Error) { scanner.scan_one(outside) }
+    assert_match "not inside", err.message
+  ensure
+    FileUtils.remove_entry(other_dir)
+  end
+
+  def test_scan_one_raises_when_prompt_has_no_schedule
+    write_prompt("no_schedule.md")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    err = assert_raises(Aias::Error) do
+      scanner.scan_one(File.join(@prompts_dir, "no_schedule.md"))
+    end
+    assert_match "no schedule:", err.message
+  end
+
+  def test_scan_one_error_message_names_the_prompt_id
+    write_prompt("standup.md")
+    scanner = Aias::PromptScanner.new(prompts_dir: @prompts_dir)
+    err = assert_raises(Aias::Error) do
+      scanner.scan_one(File.join(@prompts_dir, "standup.md"))
+    end
+    assert_match "standup", err.message
+  end
+
+  def test_scan_one_raises_when_prompts_dir_is_missing
+    scanner = Aias::PromptScanner.new(prompts_dir: "/nonexistent_aias_test_dir")
+    assert_raises(Aias::Error) do
+      scanner.scan_one("/nonexistent_aias_test_dir/job.md")
+    end
   end
 
   # ---------------------------------------------------------------------------

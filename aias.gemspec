@@ -8,8 +8,17 @@ Gem::Specification.new do |spec|
   spec.authors = ["Dewayne VanHoozer"]
   spec.email = ["dewayne@vanhoozer.me"]
 
-  spec.summary = "Schedule AIA prompts as cron jobs via frontmatter"
-  spec.description = "aias scans AIA prompt files for a schedule: key in YAML frontmatter and installs corresponding crontab entries via the whenever gem. No separate config file needed — prompts are self-describing."
+  spec.summary = "Schedule AIA prompts as cron jobs — no config file, just frontmatter"
+  spec.description = <<~DESC
+    aias turns AIA prompt files into unattended cron jobs. Add a schedule: key
+    to any prompt's YAML frontmatter and run `aias update` to install the full
+    set, or `aias add <path>` to install a single prompt without touching the
+    rest. Schedules accept raw cron expressions or natural-language strings
+    ("every weekday at 9am"). Each job runs as a fresh `aia` process under your
+    login shell and appends its output to a per-prompt log under
+    ~/.aia/schedule/logs/. Prompts are self-describing — no separate
+    configuration file is needed.
+  DESC
   spec.homepage = "https://github.com/madbomber/aias"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2.0"
@@ -32,7 +41,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "aia"
   spec.add_dependency "prompt_manager"
-  spec.add_dependency "whenever"
+  spec.add_dependency "fugit"
   spec.add_dependency "thor"
   spec.add_dependency "zeitwerk"
 end

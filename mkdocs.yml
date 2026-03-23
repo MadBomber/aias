@@ -1,0 +1,137 @@
+# MkDocs Configuration for aias
+site_name: aias
+site_description: Schedule AIA prompts as cron jobs via frontmatter
+site_author: Dewayne VanHoozer
+site_url: https://madbomber.github.io/aias
+copyright: Copyright &copy; 2025 Dewayne VanHoozer
+
+# Repository information
+repo_name: madbomber/aias
+repo_url: https://github.com/madbomber/aias
+edit_uri: edit/main/docs/
+
+# Configuration
+theme:
+  name: material
+
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/clock-outline
+
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: madbomber
+      repo: aias
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/madbomber/aias
+      name: aias on GitHub
+    - icon: fontawesome/solid/gem
+      link: https://rubygems.org/gems/aias
+      name: aias on RubyGems
+
+# Navigation
+nav:
+  - Home:
+      - Overview: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quick-start.md
+  - CLI:
+      - cli/index.md
+      - update: cli/update.md
+      - check: cli/check.md
+      - list: cli/list.md
+      - dry-run: cli/dry-run.md
+      - show: cli/show.md
+      - next: cli/next.md
+      - clear: cli/clear.md
+  - Guides:
+      - Scheduling Prompts: guides/scheduling-prompts.md
+      - Validation: guides/validation.md
+      - Cron Environment: guides/cron-environment.md
+  - Reference:
+      - Architecture: reference/architecture.md
+      - API: reference/api.md
+      - Environment Variables: reference/environment.md
+      - Logging: reference/logging.md

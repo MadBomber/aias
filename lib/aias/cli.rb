@@ -4,6 +4,11 @@ module Aias
   class CLI < Thor
     def self.exit_on_failure? = true
 
+    class_option :prompts_dir,
+      type:    :string,
+      aliases: "-p",
+      desc:    "Prompts directory (overrides AIA_PROMPTS__DIR / AIA_PROMPTS_DIR env vars)"
+
     # ---------------------------------------------------------------------------
     # update
     # ---------------------------------------------------------------------------
@@ -22,12 +27,35 @@ module Aias
         return
       end
 
-      dsl = valid.map { |r, _vr| builder.build(r) }.join("\n")
+      cron_lines = valid.map { |r, _vr| builder.build(r) }
       manager.ensure_log_directories(valid.map { |r, _vr| r.prompt_id })
-      manager.install(dsl)
+      manager.install(cron_lines)
 
       say "aias: installed #{valid.size} job(s)" \
           "#{invalid.empty? ? '' : ", skipped #{invalid.size} invalid"}"
+    rescue Aias::Error => e
+      say_error "aias [error] #{e.message}"
+      exit(1)
+    end
+
+    # ---------------------------------------------------------------------------
+    # add
+    # ---------------------------------------------------------------------------
+
+    desc "add PATH", "Add (or replace) a single scheduled prompt in the crontab"
+    def add(path)
+      result = scanner.scan_one(path)
+      vr     = validator.validate(result)
+
+      unless vr.valid?
+        say_error "aias [error] #{result.prompt_id}: #{vr.errors.join('; ')}"
+        exit(1)
+      end
+
+      cron_line = builder.build(result)
+      manager.ensure_log_directories([result.prompt_id])
+      manager.add_job(cron_line, result.prompt_id)
+      say "aias: added #{result.prompt_id} (#{CronDescriber.display(result.schedule)})"
     rescue Aias::Error => e
       say_error "aias [error] #{e.message}"
       exit(1)
@@ -55,10 +83,10 @@ module Aias
         return
       end
 
-      say format("%-30s  %-15s  %s", "PROMPT ID", "SCHEDULE", "LOG")
-      say "-" * 80
+      say format("%-30s  %-40s  %s", "PROMPT ID", "SCHEDULE", "LOG")
+      say "-" * 100
       jobs.each do |job|
-        say format("%-30s  %-15s  %s", job[:prompt_id], job[:cron_expr], job[:log_path])
+        say format("%-30s  %-40s  %s", job[:prompt_id], Aias::CronDescriber.display(job[:cron_expr]), job[:log_path])
       end
     end
 
@@ -89,7 +117,11 @@ module Aias
 
       unless new_jobs.empty?
         say "NEW (not yet installed — run `aias update`):"
-        new_jobs.each { |id| say "  + #{id}" }
+        new_jobs.each do |id|
+          r = valid.find { |result, _| result.prompt_id == id }&.first
+          sched = r ? "  #{CronDescriber.display(r.schedule)}" : ""
+          say "  + #{id}#{sched}"
+        end
         say ""
       end
 
@@ -124,8 +156,8 @@ module Aias
         return
       end
 
-      dsl = valid.map { |r, _vr| builder.build(r) }.join("\n")
-      say manager.dry_run(dsl)
+      cron_lines = valid.map { |r, _vr| builder.build(r) }
+      say manager.dry_run(cron_lines)
     rescue Aias::Error => e
       say_error "aias [error] #{e.message}"
       exit(1)
@@ -137,8 +169,8 @@ module Aias
 
     desc "next [N]", "Show next N scheduled run times for installed jobs (default 5)"
     map "next" => :upcoming
-    def upcoming(_n = "5")
-      jobs = manager.installed_jobs
+    def upcoming(n = "5")
+      jobs = manager.installed_jobs.first(n.to_i)
 
       if jobs.empty?
         say "aias: no installed jobs"
@@ -148,7 +180,7 @@ module Aias
       jobs.each do |job|
         log_stat = File.exist?(job[:log_path]) ? File.mtime(job[:log_path]).to_s : "never run"
         say "#{job[:prompt_id]}"
-        say "  schedule : #{job[:cron_expr]}"
+        say "  schedule : #{CronDescriber.display(job[:cron_expr])}"
         say "  last run : #{log_stat}"
         say "  log      : #{job[:log_path]}"
         say ""
@@ -166,7 +198,7 @@ module Aias
       job = manager.installed_jobs.find { |j| j[:prompt_id] == prompt_id }
       if job
         say "prompt_id : #{job[:prompt_id]}"
-        say "schedule  : #{job[:cron_expr]}"
+        say "schedule  : #{CronDescriber.display(job[:cron_expr])}"
         say "log       : #{job[:log_path]}"
       else
         say "aias: '#{prompt_id}' is not currently installed"
@@ -178,9 +210,9 @@ module Aias
 
     # Lazy collaborator accessors — allows injection in tests via instance
     # variable assignment before invoking a command.
-    def scanner   = @scanner   ||= PromptScanner.new
+    def scanner   = @scanner   ||= PromptScanner.new(prompts_dir: options[:prompts_dir])
     def validator = @validator ||= Validator.new
-    def builder   = @builder   ||= JobBuilder.new
+    def builder   = @builder   ||= JobBuilder.new(prompts_dir: options[:prompts_dir])
     def manager   = @manager   ||= CrontabManager.new
 
     # Splits results into [valid, invalid] where each element is [result, validation_result].

@@ -5,8 +5,11 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in aias.gemspec
 gemspec
 
-gem "irb"
-gem "rake", "~> 13.0"
-
-gem "minitest", "~> 5.16"
-gem "simplecov", require: false
+group :development, :test do
+  gem "debug_me"
+  gem "aigcm"
+  gem "irb"
+  gem "rake"
+  gem "minitest"
+  gem "simplecov", require: false
+end
