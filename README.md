@@ -100,7 +100,7 @@ Before installing, `aias` validates each scheduled prompt:
 
 - **Schedule syntax** — cron expression or whenever DSL must be parseable
 - **Parameter completeness** — all `parameters:` keys must have default values (interactive input is impossible in cron)
-- **AIA binary** — `aia` must be locatable in the login-shell PATH **or** in a known version-manager shim directory (`~/.rbenv/shims`, `~/.rvm/bin`, `~/.asdf/shims`, `/usr/local/bin`, `/opt/homebrew/bin`)
+- **AIA binary** — `aia` must be locatable in the login-shell PATH **or** in a known version-manager shim directory (`~/.rbenv/shims`, `~/.rbenv/bin`, `~/.rvm/bin`, `~/.asdf/shims`, `/usr/local/bin`, `/usr/bin`, `/opt/homebrew/bin`)
 
 Invalid prompts are warned and excluded. The remaining valid prompts are installed.
 
@@ -170,7 +170,7 @@ vr.errors   # => Array<String>
 ```ruby
 builder = Aias::JobBuilder.new(shell: ENV["SHELL"])
 builder = Aias::JobBuilder.new(shell: ENV["SHELL"], prompts_dir: "/path/to/prompts")
-dsl     = builder.build(scanner_result)   # => String (whenever DSL)
+cron    = builder.build(scanner_result)   # => String (raw cron line)
 log     = builder.log_path_for(prompt_id) # => String (absolute path)
 ```
 
@@ -201,7 +201,7 @@ AIA prompt files (YAML frontmatter)
   Validator.validate          schedule syntax + parameters + aia binary
          │
          ▼
-  JobBuilder.build            prompt ID + schedule → whenever DSL
+  JobBuilder.build            prompt ID + schedule → raw cron line
          │
          ▼
   CrontabManager.install      whenever → crontab block replace

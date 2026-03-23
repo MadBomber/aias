@@ -9,10 +9,10 @@ aias list
 ## Output
 
 ```
-PROMPT ID                       SCHEDULE         LOG
-------------------------------  ---------------  -----------------------------------------------
-daily_digest                    0 8 * * *        /Users/you/.aia/schedule/logs/daily_digest.log
-reports/weekly                  0 9 * * 1        /Users/you/.aia/schedule/logs/reports/weekly.log
+PROMPT ID                       SCHEDULE                                  LOG
+----------------------------------------------------------------------------------------------------
+daily_digest                    every day at 8am (0 8 * * *)              /Users/you/.aia/schedule/logs/daily_digest.log
+reports/weekly                  every Monday at 9am (0 9 * * 1)           /Users/you/.aia/schedule/logs/reports/weekly.log
 ```
 
 When no jobs are installed:
@@ -26,7 +26,7 @@ aias: no installed jobs
 | Column | Description |
 |---|---|
 | `PROMPT ID` | Full subpath relative to `$AIA_PROMPTS_DIR`, without the `.md` extension |
-| `SCHEDULE` | The raw cron expression as it appears in the crontab |
+| `SCHEDULE` | Human-readable description with raw cron expression in parentheses, e.g. `every day at 8am (0 8 * * *)` |
 | `LOG` | Absolute path to the log file for this job |
 
 ## Notes

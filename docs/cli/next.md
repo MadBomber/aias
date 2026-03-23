@@ -18,12 +18,12 @@ The command is also accessible as `aias upcoming` (the Ruby method name, since `
 
 ```
 daily_digest
-  schedule : 0 8 * * *
-  last run : 2025-03-20 08:00:01 +0000
+  schedule : every day at 8am (0 8 * * *)
+  last run : 2026-03-21 08:00:01 +0000
   log      : /Users/you/.aia/schedule/logs/daily_digest.log
 
 reports/weekly
-  schedule : 0 9 * * 1
+  schedule : every Monday at 9am (0 9 * * 1)
   last run : never run
   log      : /Users/you/.aia/schedule/logs/reports/weekly.log
 

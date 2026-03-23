@@ -20,7 +20,7 @@ aias show daily_digest
 
 ```
 prompt_id : daily_digest
-schedule  : 0 8 * * *
+schedule  : every day at 8am (0 8 * * *)
 log       : /Users/you/.aia/schedule/logs/daily_digest.log
 ```
 
@@ -32,7 +32,7 @@ aias show reports/weekly
 
 ```
 prompt_id : reports/weekly
-schedule  : 0 9 * * 1
+schedule  : every Monday at 9am (0 9 * * 1)
 log       : /Users/you/.aia/schedule/logs/reports/weekly.log
 ```
 
