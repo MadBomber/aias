@@ -8,7 +8,6 @@ require "aias"
 Zeitwerk::Loader.eager_load_all
 
 require "minitest/autorun"
-require "minitest/mock"
 
 # Shared factory for building PromptScanner::Result test fixtures.
 # Used by tests for Validator, JobBuilder, CrontabManager, and CLI

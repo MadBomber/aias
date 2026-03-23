@@ -2,7 +2,7 @@
 
 ## Overview
 
-`aias` is a thin orchestration layer over three well-established tools: `grep` (for discovery), `PM::Metadata` from the `prompt_manager` gem (for frontmatter parsing), and `whenever` (for crontab management). Its five classes have narrow, well-defined responsibilities.
+`aias` is a thin orchestration layer over three well-established tools: `grep` (for discovery), `PM::Metadata` from the `prompt_manager` gem (for frontmatter parsing), and `fugit` (for cron expression parsing and natural-language schedule resolution). Its five classes have narrow, well-defined responsibilities.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -11,8 +11,8 @@
 │   Aias::CLI                                                     │
 │   ├── Aias::PromptScanner   grep -rl + PM::Metadata             │
 │   ├── Aias::Validator       schedule syntax + params + binary   │
-│   ├── Aias::JobBuilder      prompt ID → whenever DSL            │
-│   └── Aias::CrontabManager  whenever → crontab block            │
+│   ├── Aias::JobBuilder      prompt ID + schedule → cron line    │
+│   └── Aias::CrontabManager  crontab(1) read/write               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -34,10 +34,10 @@ Validator#validate(result)
       ├── invalid → warn to stderr, skip
       │
       └── valid ──►  JobBuilder#build(result)
-                         │ returns String (whenever DSL)
+                         │ returns String (raw cron line)
                          ▼
-                    CrontabManager#install(dsl)
-                         │ calls Whenever::CommandLine.execute
+                    CrontabManager#install(cron_lines)
+                         │ writes via crontab(1) command
                          ▼
                     crontab (OS cron daemon manages execution)
 ```
@@ -46,7 +46,7 @@ Validator#validate(result)
 
 ### `Aias::CLI`
 
-The entry point. A `Thor` subclass that exposes seven commands. CLI delegates all domain logic to its four collaborators; it only formats output and handles errors.
+The entry point. A `Thor` subclass that exposes eight commands. CLI delegates all domain logic to its four collaborators; it only formats output and handles errors.
 
 Collaborators are created lazily and accessible via private accessors (`scanner`, `validator`, `builder`, `manager`). Tests inject replacements by setting instance variables before calling a command.
 
@@ -69,19 +69,27 @@ The `binary_to_check:` constructor parameter makes the binary check testable wit
 
 ### `Aias::JobBuilder`
 
-Pure function: converts a `PromptScanner::Result` into a `whenever` DSL string. No I/O, no side effects.
+Pure function: converts a `PromptScanner::Result` into a raw cron line string. No I/O, no side effects.
 
-Uses `ENV["SHELL"]` (defaulting to `/bin/bash`) for the login shell in `job_template`. Log paths follow the pattern `~/.aia/schedule/logs/<prompt_id>.log`.
+Uses `fugit` to resolve the `schedule:` value to a canonical 5-field cron expression, then assembles:
+
+```
+<cron_expr> <shell> -l -c 'aia [--prompts-dir DIR] <prompt_id> >> <log> 2>&1'
+```
+
+Uses `ENV["SHELL"]` (defaulting to `/bin/bash`) as the login shell. Log paths follow the pattern `~/.aia/schedule/logs/<prompt_id>.log`.
 
 ### `Aias::CrontabManager`
 
-Wraps `whenever`. Three categories of operations:
+Manages the aias-owned block in the user's crontab by directly invoking the system `crontab(1)` command via `Open3`. Three categories of operations:
 
 | Category | Methods | How |
 |---|---|---|
-| Write | `install(dsl)`, `clear` | `Whenever::CommandLine.execute` with `console: false` |
-| Read | `installed_jobs`, `current_block` | Parses crontab via `crontab_command -l` |
-| Preview | `dry_run(dsl)` | `Whenever.cron(string: dsl)` — no system calls |
+| Write | `install(cron_lines)`, `add_job(cron_line, prompt_id)`, `clear` | `Open3.popen2(crontab_command, "-")` — pipes new content to stdin |
+| Read | `installed_jobs`, `current_block` | `Open3.capture3(crontab_command, "-l")` |
+| Preview | `dry_run(cron_lines)` | `Array(cron_lines).join("\n")` — no system calls |
+
+The managed block is delimited by `# BEGIN aias` and `# END aias` marker comments. All other crontab entries are preserved verbatim.
 
 The `crontab_command:` and `log_base:` constructor parameters make the manager fully testable with a fake crontab script backed by a tmpfile — no system crontab is ever touched during tests.
 

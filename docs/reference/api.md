@@ -247,7 +247,7 @@ Returns `true` when an executable file named `binary_to_check` exists in any of 
 
 ## `Aias::JobBuilder`
 
-Converts a `PromptScanner::Result` into a `whenever` DSL string. Pure function — no I/O.
+Converts a `PromptScanner::Result` into a raw cron line string. Pure function — no I/O.
 
 ### `.new`
 
@@ -259,35 +259,27 @@ builder = Aias::JobBuilder.new(shell: "/bin/zsh", prompts_dir: "/path/to/prompts
 
 | Parameter | Default | Description |
 |---|---|---|
-| `shell:` | `ENV["SHELL"]` or `"/bin/bash"` | Shell binary for `job_template` |
+| `shell:` | `ENV["SHELL"]` or `"/bin/bash"` | Login shell binary used to wrap the `aia` invocation |
 | `prompts_dir:` | `nil` | When set, appends `--prompts-dir DIR` to every generated `aia` command |
 
 ### `#build`
 
 ```ruby
-dsl = builder.build(scanner_result)  # => String
+cron_line = builder.build(scanner_result)  # => String
 ```
 
-Returns a whenever DSL string suitable for passing to `CrontabManager#install` or `Whenever.cron`.
+Returns a fully-formed cron line string suitable for passing to `CrontabManager#install` or `#add_job`. Uses `fugit` to resolve the `schedule:` value to a canonical 5-field cron expression.
 
 **Without `prompts_dir`:**
 
-```ruby
-set :job_template, "/bin/zsh -l -c ':job'"
-job_type :aia_job, "aia :task :output"
-every '0 8 * * *' do
-  aia_job "daily_digest", output: "/Users/you/.aia/schedule/logs/daily_digest.log"
-end
+```
+0 8 * * * /bin/zsh -l -c 'aia daily_digest >> /Users/you/.aia/schedule/logs/daily_digest.log 2>&1'
 ```
 
 **With `prompts_dir: "/data/prompts"`:**
 
-```ruby
-set :job_template, "/bin/zsh -l -c ':job'"
-job_type :aia_job, "aia --prompts-dir /data/prompts :task :output"
-every '0 8 * * *' do
-  aia_job "daily_digest", output: "/Users/you/.aia/schedule/logs/daily_digest.log"
-end
+```
+0 8 * * * /bin/zsh -l -c 'aia --prompts-dir /data/prompts daily_digest >> /Users/you/.aia/schedule/logs/daily_digest.log 2>&1'
 ```
 
 ### `#log_path_for`
@@ -303,7 +295,7 @@ Returns the absolute log path for a given prompt ID.
 
 ## `Aias::CrontabManager`
 
-Manages the aias-owned block in the user's crontab via the `whenever` gem.
+Manages the aias-owned block in the user's crontab by directly invoking the system `crontab(1)` command via `Open3`.
 
 ### Constants
 
@@ -330,12 +322,12 @@ The `crontab_command:` parameter makes the manager testable with a fake crontab 
 ### `#install`
 
 ```ruby
-manager.install(dsl_string)
+manager.install(cron_lines)
 ```
 
-Creates `@log_base` if absent, then calls `Whenever::CommandLine.execute` with `update: true` to replace the `aias`-managed block.
+Accepts a single cron line string or an array of cron line strings. Creates `@log_base` if absent, then replaces the entire `aias`-managed crontab block by piping the new content to `crontab -` via `Open3`.
 
-**Raises** `Aias::Error` if `whenever` fails to write the crontab.
+**Raises** `Aias::Error` if the `crontab` command exits non-zero.
 
 ### `#add_job`
 
@@ -359,15 +351,15 @@ Creates `@log_base` if absent. **Raises** `Aias::Error` if the crontab write fai
 manager.clear
 ```
 
-Calls `Whenever::CommandLine.execute` with `clear: true`. Removes the `aias`-managed block; non-aias entries are untouched.
+Removes the `# BEGIN aias` … `# END aias` block from the crontab and rewrites it via `crontab -`. Non-aias entries are untouched.
 
 ### `#dry_run`
 
 ```ruby
-output = manager.dry_run(dsl_string)  # => String
+output = manager.dry_run(cron_lines)  # => String
 ```
 
-Returns the cron lines that would be installed, without writing anything. Calls `Whenever.cron(string: dsl_string)`.
+Returns the cron lines that would be installed joined by newlines, without making any system calls or writing to the crontab.
 
 ### `#installed_jobs`
 
@@ -387,7 +379,7 @@ Reads the current crontab and parses the `aias`-managed block. Returns an empty 
 block = manager.current_block  # => String
 ```
 
-Returns the raw text between the `Begin Whenever` and `End Whenever` marker lines (markers excluded). Returns `""` when no block exists.
+Returns the raw text between the `# BEGIN aias` and `# END aias` marker lines (markers excluded). Returns `""` when no block exists.
 
 ### `#ensure_log_directories`
 
