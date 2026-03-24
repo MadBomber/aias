@@ -1,6 +1,6 @@
 # CLI Reference
 
-`aias` provides eight commands. All are available via `aias help` at the terminal.
+`aias` provides nine commands. All are available via `aias help` at the terminal.
 
 ```
 aias help
@@ -16,12 +16,13 @@ aias help
 | [`aias list`](list.md) | Print all currently installed jobs. |
 | [`aias dry-run`](dry-run.md) | Preview `update` output without writing the crontab. |
 | [`aias show PROMPT_ID`](show.md) | Inspect a single installed job. |
-| [`aias next [N]`](next.md) | Show schedule and last-run information for installed jobs. |
+| [`aias next [N]`](next.md) | Show next scheduled run time for installed jobs. |
+| [`aias last [N]`](last.md) | Show last-run time for installed jobs. |
 | [`aias clear`](clear.md) | Remove all aias-managed crontab entries. |
 
 ## Global Option
 
-`--prompts-dir PATH` (alias `-p`) overrides the `AIA_PROMPTS__DIR` / `AIA_PROMPTS_DIR` environment variables for any command that reads prompt files. It has no effect on commands that only read from the crontab (`list`, `show`, `next`, `clear`).
+`--prompts-dir PATH` (alias `-p`) overrides the `AIA_PROMPTS__DIR` / `AIA_PROMPTS_DIR` environment variables for any command that reads prompt files. It has no effect on commands that only read from the crontab (`list`, `show`, `next`, `last`, `clear`).
 
 ```bash
 aias --prompts-dir ~/work/prompts update

@@ -2,26 +2,34 @@
 
 module Aias
   class JobBuilder
-    LOG_BASE = File.expand_path("~/.aia/schedule/logs")
+    LOG_BASE = File.expand_path("~/.config/aia/schedule/logs")
 
-    def initialize(shell: ENV.fetch("SHELL", "/bin/bash"), prompts_dir: nil)
+    def initialize(shell: ENV.fetch("SHELL", "/bin/bash"), aia_path: nil, env_file: nil, config_file: nil)
       @shell       = shell
-      @prompts_dir = prompts_dir
+      @aia_path    = aia_path || 'aia'
+      @env_file    = env_file || EnvFile::PATH
+      @config_file = config_file
     end
 
     # Returns a single cron line string for the given scanner result, e.g.:
-    #   0 8 * * * /bin/bash -l -c 'aia daily_digest >> ~/.aia/schedule/logs/daily_digest.log 2>&1'
-    def build(scanner_result)
-      cron_expr = resolved_cron(scanner_result.schedule)
-      prompt_id = scanner_result.prompt_id
-      log       = log_path_for(prompt_id)
-      cmd       = "aia #{prompts_dir_flag}#{prompt_id} >> #{log} 2>&1"
-      "#{cron_expr} #{shell_binary} -l -c '#{cmd}'"
+    #   0 8 * * * /bin/bash -c 'source ~/.config/aia/schedule/env.sh && /path/to/aia --prompts-dir /path --config ~/.config/aia/schedule/aia.yml daily_digest > ~/.config/aia/schedule/logs/daily_digest.log 2>&1'
+    #
+    # env.sh is sourced first to set PATH, API keys, etc. All flags come before
+    # the prompt ID. config_file selects the schedule-specific AIA config.
+    # prompts_dir sets the directory AIA searches for the prompt file.
+    def build(scanner_result, prompts_dir: nil)
+      cron_expr    = resolved_cron(scanner_result.schedule)
+      prompt_id    = scanner_result.prompt_id
+      log          = log_path_for(prompt_id)
+      prompts_flag = prompts_dir ? " --prompts-dir #{File.expand_path(prompts_dir)}" : ""
+      config_flag  = @config_file ? " --config #{@config_file}" : ""
+      cmd          = "source #{@env_file} && #{@aia_path}#{prompts_flag}#{config_flag} #{prompt_id} > #{log} 2>&1"
+      "#{cron_expr} #{shell_binary} -c '#{cmd}'"
     end
 
     # Returns the log file path for a given prompt_id.
     # Mirrors the subdirectory structure of the prompt_id.
-    # e.g. "reports/weekly" → "~/.aia/schedule/logs/reports/weekly.log"
+    # e.g. "reports/weekly" → "~/.config/aia/schedule/logs/reports/weekly.log"
     def log_path_for(prompt_id)
       File.join(LOG_BASE, "#{prompt_id}.log")
     end
@@ -46,12 +54,15 @@ module Aias
       @shell.strip
     end
 
-    # Returns "--prompts-dir DIR " (with trailing space) when a prompts_dir was
-    # provided, or an empty string when it was not. Always uses an absolute path.
-    def prompts_dir_flag
-      return "" if @prompts_dir.nil? || @prompts_dir.strip.empty?
-
-      "--prompts-dir #{File.expand_path(@prompts_dir)} "
+    # Resolves the full path to the aia binary by running `which aia` in the
+    # current process environment. This is called at build time (when the user
+    # runs `aias add` or `aias update`), so aia is always in PATH at that point.
+    # Falls back to bare "aia" if resolution fails.
+    def detect_aia_path
+      path = `which aia 2>/dev/null`.strip
+      path.empty? ? "aia" : path
+    rescue StandardError
+      "aia"
     end
   end
 end

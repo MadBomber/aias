@@ -75,11 +75,20 @@ cli.show("reports/weekly")
 
 #### `#upcoming(n = "5")`
 
-Print schedule and last-run information for all installed jobs. Aliased as `aias next` on the command line.
+Print the next scheduled run time for installed jobs, computed via `fugit`. Aliased as `aias next` on the command line.
 
 ```ruby
 cli.upcoming
 cli.upcoming("10")
+```
+
+#### `#last_run(n = "5")`
+
+Print the last-run time for installed jobs, derived from the log file modification timestamp. Aliased as `aias last` on the command line.
+
+```ruby
+cli.last_run
+cli.last_run("10")
 ```
 
 #### `#clear`

@@ -14,6 +14,7 @@ class TestCli < Minitest::Test
     @log_base      = File.join(@prompts_dir, "logs")
     @crontab_state = File.join(@prompts_dir, "crontab_state")
     @fake_crontab  = write_fake_crontab(@prompts_dir, @crontab_state)
+    @env_file_path = File.join(@prompts_dir, "env.sh")
   end
 
   def teardown
@@ -74,7 +75,7 @@ class TestCli < Minitest::Test
     # CLI pointed at other_dir (empty) — should find no prompts
     cli = Aias::CLI.new([], { prompts_dir: other_dir })
     cli.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-    cli.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash"))
+    cli.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia"))
     cli.instance_variable_set(:@manager,  new_manager)
     out, = capture_io { cli.update }
     assert_match "no valid scheduled prompts", out
@@ -82,31 +83,32 @@ class TestCli < Minitest::Test
     FileUtils.remove_entry(other_dir)
   end
 
-  def test_prompts_dir_option_is_passed_to_generated_aia_command
+  def test_generated_aia_command_includes_prompts_dir_flag
     write_prompt("daily_digest.md", schedule: "0 8 * * *")
     mgr = new_manager
     cli = Aias::CLI.new([], { prompts_dir: @prompts_dir })
     cli.instance_variable_set(:@scanner,  Aias::PromptScanner.new(prompts_dir: @prompts_dir))
     cli.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-    cli.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash", prompts_dir: @prompts_dir))
+    cli.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path))
     cli.instance_variable_set(:@manager,  mgr)
     capture_io { cli.update }
-    assert_match "--prompts-dir #{@prompts_dir}", mgr.current_block,
-      "Generated crontab entry must include --prompts-dir when the option was given"
+    assert_match "--prompts-dir #{File.expand_path(@prompts_dir)}", mgr.current_block,
+      "Generated crontab entry must include --prompts-dir flag"
+    refute_match "--config", mgr.current_block
   end
 
-  def test_no_prompts_dir_option_omits_flag_from_generated_aia_command
+  def test_generated_aia_command_has_no_inline_env_vars
     write_prompt("daily_digest.md", schedule: "0 8 * * *")
     mgr = new_manager
-    # new_cli injects a builder with no prompts_dir
     cli = Aias::CLI.new.tap do |c|
       c.instance_variable_set(:@scanner,  Aias::PromptScanner.new(prompts_dir: @prompts_dir))
       c.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-      c.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash"))
+      c.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia"))
       c.instance_variable_set(:@manager,  mgr)
     end
     capture_io { cli.update }
-    refute_match "--prompts-dir", mgr.current_block
+    refute_match "AIA_MODEL=", mgr.current_block
+    refute_match "ANTHROPIC_API_KEY=", mgr.current_block
   end
 
   # ---------------------------------------------------------------------------
@@ -189,6 +191,114 @@ class TestCli < Minitest::Test
     out, = capture_io { new_cli.add(path) }
     # CronDescriber.display("0 9 * * 1-5") => "every weekday at 9am (0 9 * * 1-5)"
     assert_match "weekday", out
+  end
+
+  # ---------------------------------------------------------------------------
+  # install / uninstall
+  # ---------------------------------------------------------------------------
+
+  def test_install_writes_api_keys_to_env_file
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("ANTHROPIC_API_KEY" => "sk-ant-test", "OPENAI_API_KEY" => "sk-open-test") do
+      capture_io { cli.install }
+    end
+    block = ef.current_block
+    assert_match 'export ANTHROPIC_API_KEY="sk-ant-test"', block
+    assert_match 'export OPENAI_API_KEY="sk-open-test"', block
+  end
+
+  def test_install_writes_path_to_env_file
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env({}) { capture_io { cli.install } }
+    assert_match "export PATH=", ef.current_block
+  end
+
+  def test_install_prints_installed_var_names
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    out, = with_env("ANTHROPIC_API_KEY" => "sk-ant-test") do
+      capture_io { cli.install }
+    end
+    assert_match "ANTHROPIC_API_KEY", out
+    assert_match "PATH", out
+  end
+
+  def test_install_with_pattern_adds_matching_vars
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("AIA_MODEL" => "claude-haiku-4-5", "AIA_BACKEND" => "anthropic") do
+      capture_io { cli.install("AIA_*") }
+    end
+    block = ef.current_block
+    assert_match 'export AIA_MODEL="claude-haiku-4-5"', block
+    assert_match 'export AIA_BACKEND="anthropic"', block
+  end
+
+  def test_install_with_multiple_patterns
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("AIA_MODEL" => "claude-haiku-4-5", "ANTHROPIC_API_KEY" => "sk-ant-test") do
+      capture_io { cli.install("AIA_*") }
+    end
+    block = ef.current_block
+    assert_match 'export AIA_MODEL="claude-haiku-4-5"', block
+    assert_match 'export ANTHROPIC_API_KEY="sk-ant-test"', block
+  end
+
+  def test_install_with_space_separated_patterns_in_single_arg
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("AIA_MODEL" => "claude-haiku-4-5", "OPENAI_API_KEY" => "sk-open-test") do
+      capture_io { cli.install("AIA_* OPENAI_*") }
+    end
+    block = ef.current_block
+    assert_match 'export AIA_MODEL="claude-haiku-4-5"', block
+    assert_match 'export OPENAI_API_KEY="sk-open-test"', block
+  end
+
+  def test_install_pattern_is_case_insensitive
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("AIA_MODEL" => "claude-haiku-4-5") do
+      capture_io { cli.install("aia_*") }
+    end
+    assert_match 'export AIA_MODEL="claude-haiku-4-5"', ef.current_block
+  end
+
+  def test_install_pattern_does_not_add_non_matching_vars
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("AIA_MODEL" => "claude-haiku-4-5", "UNRELATED_VAR" => "nope") do
+      capture_io { cli.install("AIA_*") }
+    end
+    refute_match "UNRELATED_VAR", ef.current_block
+  end
+
+  def test_uninstall_removes_api_keys_from_env_file
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    with_env("ANTHROPIC_API_KEY" => "sk-ant-test") { capture_io { cli.install } }
+    capture_io { cli.uninstall }
+    assert_empty ef.current_block
+  end
+
+  def test_uninstall_prints_confirmation
+    ef = new_env_file
+    cli = new_cli
+    cli.instance_variable_set(:@env_file, ef)
+    out, = capture_io { cli.uninstall }
+    assert_match "removed", out
   end
 
   # ---------------------------------------------------------------------------
@@ -314,7 +424,7 @@ class TestCli < Minitest::Test
   end
 
   # ---------------------------------------------------------------------------
-  # upcoming (next)
+  # upcoming (aias next) — shows next scheduled run time via fugit
   # ---------------------------------------------------------------------------
 
   def test_upcoming_prints_no_jobs_when_empty
@@ -322,18 +432,18 @@ class TestCli < Minitest::Test
     assert_match "no installed jobs", out
   end
 
-  def test_upcoming_prints_job_schedule
+  def test_upcoming_prints_job_schedule_and_next_run
     preset_crontab(sample_crontab_block("daily_digest", "0 8 * * *"))
     out, = capture_io { new_cli.upcoming }
     assert_match "daily_digest", out
     assert_match "0 8 * * *", out
+    assert_match "next run", out
   end
 
   def test_upcoming_limits_output_to_n_jobs
-    # Single block with two cron lines; ask for only 1.
     preset_crontab(multi_job_crontab_block(
       ["daily_digest",    "0 8 * * *"],
-      ["morning_standup", "0 9 * * 1-5"]
+      ["morning_standup", "0 9 * * *"]
     ))
     out, = capture_io { new_cli.upcoming("1") }
     assert_match "daily_digest", out
@@ -341,10 +451,59 @@ class TestCli < Minitest::Test
   end
 
   def test_upcoming_default_n_is_5
-    # Single block with 6 cron lines; default of 5 should omit the 6th.
     rows = (1..6).map { |i| ["job_#{i}", "0 #{i} * * *"] }
     preset_crontab(multi_job_crontab_block(*rows))
     out, = capture_io { new_cli.upcoming }
+    assert_match "job_1", out
+    refute_match "job_6", out
+  end
+
+  # ---------------------------------------------------------------------------
+  # last_run (aias last) — shows last-run timestamp from log file mtime
+  # ---------------------------------------------------------------------------
+
+  def test_last_run_prints_no_jobs_when_empty
+    out, = capture_io { new_cli.last_run }
+    assert_match "no installed jobs", out
+  end
+
+  def test_last_run_prints_job_schedule_and_last_run
+    preset_crontab(sample_crontab_block("daily_digest", "0 8 * * *"))
+    out, = capture_io { new_cli.last_run }
+    assert_match "daily_digest", out
+    assert_match "0 8 * * *", out
+    assert_match "last run", out
+  end
+
+  def test_last_run_shows_never_run_when_log_absent
+    preset_crontab(sample_crontab_block("daily_digest", "0 8 * * *"))
+    out, = capture_io { new_cli.last_run }
+    assert_match "never run", out
+  end
+
+  def test_last_run_shows_mtime_when_log_exists
+    preset_crontab(sample_crontab_block("daily_digest", "0 8 * * *"))
+    log_path = File.join(@log_base, "daily_digest.log")
+    FileUtils.mkdir_p(File.dirname(log_path))
+    File.write(log_path, "output\n")
+    out, = capture_io { new_cli.last_run }
+    refute_match "never run", out
+  end
+
+  def test_last_run_limits_output_to_n_jobs
+    preset_crontab(multi_job_crontab_block(
+      ["daily_digest",    "0 8 * * *"],
+      ["morning_standup", "0 9 * * *"]
+    ))
+    out, = capture_io { new_cli.last_run("1") }
+    assert_match "daily_digest", out
+    refute_match "morning_standup", out
+  end
+
+  def test_last_run_default_n_is_5
+    rows = (1..6).map { |i| ["job_#{i}", "0 #{i} * * *"] }
+    preset_crontab(multi_job_crontab_block(*rows))
+    out, = capture_io { new_cli.last_run }
     assert_match "job_1", out
     refute_match "job_6", out
   end
@@ -365,8 +524,9 @@ class TestCli < Minitest::Test
     Aias::CLI.new.tap do |cli|
       cli.instance_variable_set(:@scanner,   Aias::PromptScanner.new(prompts_dir: @prompts_dir))
       cli.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash"))
+      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path, config_file: Aias::CLI::AIA_SCHEDULE_CFG))
       cli.instance_variable_set(:@manager,   mgr)
+      cli.instance_variable_set(:@env_file,  new_env_file)
     end
   end
 
@@ -375,14 +535,20 @@ class TestCli < Minitest::Test
     Aias::CLI.new.tap do |cli|
       cli.instance_variable_set(:@scanner,   Aias::PromptScanner.new(prompts_dir: "/nonexistent_dir_xyz_aias_test"))
       cli.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash"))
+      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path, config_file: Aias::CLI::AIA_SCHEDULE_CFG))
       cli.instance_variable_set(:@manager,   new_manager)
+      cli.instance_variable_set(:@env_file,  new_env_file)
     end
   end
 
   # Fresh CrontabManager pointing at the test's fake crontab script.
   def new_manager
     Aias::CrontabManager.new(crontab_command: @fake_crontab, log_base: @log_base)
+  end
+
+  # Fresh EnvFile pointing at the test's temp file.
+  def new_env_file
+    Aias::EnvFile.new(path: @env_file_path)
   end
 
   # Writes a prompt file into @prompts_dir and returns its absolute path.
@@ -454,5 +620,23 @@ class TestCli < Minitest::Test
     BASH
     File.chmod(0o755, path)
     path
+  end
+
+  # Temporarily overrides ENV with the given hash for the duration of the block.
+  # Removes *_API_KEY and AIA_* vars from the environment before setting the
+  # provided vars, so tests are not affected by the developer's real environment.
+  MANAGED_PATTERNS = [
+    ->(k) { k.end_with?("_API_KEY") },
+    ->(k) { k.start_with?("AIA_") }
+  ].freeze
+
+  def with_env(vars)
+    old = ENV.to_h
+    old.each_key { |k| ENV.delete(k) if MANAGED_PATTERNS.any? { |p| p.call(k) } }
+    vars.each { |k, v| ENV[k] = v }
+    yield
+  ensure
+    old.each_key { |k| ENV.delete(k) if MANAGED_PATTERNS.any? { |p| p.call(k) } }
+    old.each { |k, v| ENV[k] = v if MANAGED_PATTERNS.any? { |p| p.call(k) } }
   end
 end

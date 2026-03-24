@@ -46,7 +46,7 @@ Validator#validate(result)
 
 ### `Aias::CLI`
 
-The entry point. A `Thor` subclass that exposes eight commands. CLI delegates all domain logic to its four collaborators; it only formats output and handles errors.
+The entry point. A `Thor` subclass that exposes nine commands. CLI delegates all domain logic to its four collaborators; it only formats output and handles errors.
 
 Collaborators are created lazily and accessible via private accessors (`scanner`, `validator`, `builder`, `manager`). Tests inject replacements by setting instance variables before calling a command.
 

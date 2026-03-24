@@ -31,7 +31,7 @@ class TestCrontabManager < Minitest::Test
 
   def test_dry_run_includes_prompt_id
     output = new_manager.dry_run(build_job_dsl("daily_digest", "0 8 * * *"))
-    assert_match "aia daily_digest", output
+    assert_match(/aia.*daily_digest/, output)
   end
 
   def test_dry_run_does_not_touch_crontab
@@ -210,6 +210,18 @@ class TestCrontabManager < Minitest::Test
       "prompt_id must be 'daily_digest', not the --prompts-dir path value"
   end
 
+  def test_installed_jobs_parses_current_format_with_prompts_dir_after_prompt_id
+    block = <<~CRON
+      # BEGIN aias
+      0 8 * * * /bin/bash -l -c 'aia daily_digest --prompts-dir /data/prompts --config ~/.config/aia/schedule/aia.yml >> #{@log_base}/daily_digest.log 2>&1'
+      # END aias
+    CRON
+    preset_crontab(block)
+    job = new_manager.installed_jobs.first
+    assert_equal "daily_digest", job[:prompt_id]
+    assert_equal "0 8 * * *", job[:cron_expr]
+  end
+
   # ---------------------------------------------------------------------------
   # add_job — upsert a single entry
   # ---------------------------------------------------------------------------
@@ -275,6 +287,34 @@ class TestCrontabManager < Minitest::Test
   end
 
   # ---------------------------------------------------------------------------
+  # installed_jobs — new format (source env.sh, no -l)
+  # ---------------------------------------------------------------------------
+
+  def test_installed_jobs_parses_new_format_with_source_and_config_file
+    block = <<~CRON
+      # BEGIN aias
+      0 8 * * * /bin/bash -c 'source /fake/env.sh && /usr/local/bin/aia daily_digest --config-file /fake/schedule/aia.yml >> #{@log_base}/daily_digest.log 2>&1'
+      # END aias
+    CRON
+    preset_crontab(block)
+    job = new_manager.installed_jobs.first
+    assert_equal "daily_digest", job[:prompt_id]
+    assert_equal "0 8 * * *", job[:cron_expr]
+    assert_equal "#{@log_base}/daily_digest.log", job[:log_path]
+  end
+
+  def test_installed_jobs_parses_new_format_with_inline_env_var
+    block = <<~CRON
+      # BEGIN aias
+      0 8 * * * /bin/bash -c 'source /fake/env.sh && AIA_PROMPTS__DIR=/data/prompts /usr/local/bin/aia daily_digest --config-file /fake/schedule/aia.yml >> #{@log_base}/daily_digest.log 2>&1'
+      # END aias
+    CRON
+    preset_crontab(block)
+    job = new_manager.installed_jobs.first
+    assert_equal "daily_digest", job[:prompt_id]
+  end
+
+  # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
 
@@ -312,9 +352,9 @@ class TestCrontabManager < Minitest::Test
     path
   end
 
-  # Build a minimal valid whenever DSL for a single prompt.
+  # Build a minimal valid cron line for a single prompt.
   def build_job_dsl(prompt_id, schedule)
-    Aias::JobBuilder.new(shell: "/bin/bash").build(
+    Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: "/fake/env.sh", config_file: "/fake/schedule/aia.yml").build(
       build_result(prompt_id: prompt_id, schedule: schedule)
     )
   end

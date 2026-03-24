@@ -53,7 +53,8 @@ aias check
 | `aias list` | Report all installed jobs: prompt ID, schedule, log file. |
 | `aias dry-run` | Show what `update` would write without touching the crontab. |
 | `aias show PROMPT_ID` | Show the installed crontab entry for a single prompt. |
-| `aias next [N]` | Show next N scheduled run times for installed jobs (default 5). |
+| `aias next [N]` | Show next scheduled run time for installed jobs (default 5). |
+| `aias last [N]` | Show last-run time for installed jobs (default 5). |
 | `aias clear` | Remove all aias-managed crontab entries. Non-aias entries untouched. |
 
 ### `aias add PATH`
@@ -129,7 +130,8 @@ cli.check        # diff view
 cli.list         # print installed jobs
 cli.dry_run      # print cron output without installing
 cli.show(id)     # show single job
-cli.upcoming     # show schedule details (aliased as `next`)
+cli.upcoming     # show next scheduled run time (aliased as `next`)
+cli.last_run     # show last-run time from log mtime (aliased as `last`)
 cli.clear        # remove all aias-managed entries
 ```
 

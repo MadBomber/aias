@@ -3,7 +3,10 @@
 require "test_helper"
 
 class TestJobBuilder < Minitest::Test
-  LOG_BASE = File.expand_path("~/.aia/schedule/logs")
+  LOG_BASE  = File.expand_path("~/.config/aia/schedule/logs")
+  AIA_PATH  = "/usr/local/bin/aia"
+  ENV_FILE  = "/fake/aias/env.sh"
+  CFG_FILE  = "/fake/aias/schedule/aia.yml"
 
   # ---------------------------------------------------------------------------
   # log_path_for
@@ -39,18 +42,73 @@ class TestJobBuilder < Minitest::Test
   # ---------------------------------------------------------------------------
 
   def test_build_uses_given_shell
-    line = Aias::JobBuilder.new(shell: "/bin/zsh").build(build_result)
-    assert_match "/bin/zsh -l -c", line
+    line = Aias::JobBuilder.new(shell: "/bin/zsh", aia_path: AIA_PATH, env_file: ENV_FILE, config_file: CFG_FILE).build(build_result)
+    assert_match "/bin/zsh -c", line
+  end
+
+  def test_build_does_not_use_login_shell_flag
+    line = builder.build(build_result)
+    refute_match "-l -c", line
+    assert_match "-c '", line
   end
 
   def test_build_falls_back_to_bash_when_shell_nil
-    line = Aias::JobBuilder.new(shell: nil).build(build_result)
-    assert_match "/bin/bash -l -c", line
+    line = Aias::JobBuilder.new(shell: nil, aia_path: AIA_PATH, env_file: ENV_FILE, config_file: CFG_FILE).build(build_result)
+    assert_match "/bin/bash -c", line
   end
 
   def test_build_falls_back_to_bash_when_shell_empty
-    line = Aias::JobBuilder.new(shell: "").build(build_result)
-    assert_match "/bin/bash -l -c", line
+    line = Aias::JobBuilder.new(shell: "", aia_path: AIA_PATH, env_file: ENV_FILE, config_file: CFG_FILE).build(build_result)
+    assert_match "/bin/bash -c", line
+  end
+
+  # ---------------------------------------------------------------------------
+  # env.sh — sourced before the aia command
+  # ---------------------------------------------------------------------------
+
+  def test_build_sources_env_file
+    line = builder.build(build_result)
+    assert_match "source #{ENV_FILE} &&", line
+  end
+
+  def test_build_env_file_appears_before_aia_binary
+    line = builder.build(build_result)
+    assert line.index("source #{ENV_FILE}") < line.index(AIA_PATH),
+      "source env.sh must appear before the aia binary"
+  end
+
+  # ---------------------------------------------------------------------------
+  # aia binary — full path resolved at build time so cron doesn't need PATH
+  # ---------------------------------------------------------------------------
+
+  def test_build_uses_injected_aia_path
+    line = Aias::JobBuilder.new(aia_path: "/home/user/.rbenv/shims/aia", env_file: ENV_FILE, config_file: CFG_FILE).build(build_result)
+    assert_match "/home/user/.rbenv/shims/aia", line
+  end
+
+  def test_build_command_includes_aia_path
+    line = builder.build(build_result)
+    assert_match AIA_PATH, line
+  end
+
+  # ---------------------------------------------------------------------------
+  # --config-file — schedule-specific AIA config
+  # ---------------------------------------------------------------------------
+
+  def test_build_includes_config_flag
+    line = builder.build(build_result)
+    assert_match "--config #{CFG_FILE}", line
+  end
+
+  def test_build_config_flag_appears_before_prompt_id
+    line = builder.build(build_result(prompt_id: "daily_digest"))
+    assert line.index("--config #{CFG_FILE}") < line.index("daily_digest"),
+      "--config must appear before the prompt ID"
+  end
+
+  def test_build_without_config_file_omits_flag
+    line = Aias::JobBuilder.new(shell: "/bin/bash", aia_path: AIA_PATH, env_file: ENV_FILE).build(build_result)
+    refute_match "--config ", line
   end
 
   # ---------------------------------------------------------------------------
@@ -59,12 +117,42 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_includes_simple_prompt_id
     line = builder.build(build_result(prompt_id: "daily_digest"))
-    assert_match "aia daily_digest", line
+    assert_match(/aia.*daily_digest/, line)
   end
 
   def test_build_includes_nested_prompt_id
     line = builder.build(build_result(prompt_id: "reports/weekly"))
-    assert_match "aia reports/weekly", line
+    assert_match(/aia.*reports\/weekly/, line)
+  end
+
+  # ---------------------------------------------------------------------------
+  # --prompts-dir — flag before prompt_id so aia finds prompts at runtime
+  # ---------------------------------------------------------------------------
+
+  def test_build_with_prompts_dir_includes_flag
+    line = builder.build(build_result, prompts_dir: "/tmp/my_prompts")
+    assert_match "--prompts-dir /tmp/my_prompts", line
+  end
+
+  def test_build_with_prompts_dir_flag_appears_before_prompt_id
+    line = builder.build(build_result(prompt_id: "daily_digest"), prompts_dir: "/tmp/my_prompts")
+    assert line.index("--prompts-dir") < line.index("daily_digest"),
+      "--prompts-dir must appear before the prompt ID"
+  end
+
+  def test_build_without_prompts_dir_omits_flag
+    line = builder.build(build_result)
+    refute_match "--prompts-dir", line
+  end
+
+  def test_build_with_nil_prompts_dir_omits_flag
+    line = builder.build(build_result, prompts_dir: nil)
+    refute_match "--prompts-dir", line
+  end
+
+  def test_build_expands_relative_prompts_dir_to_absolute_path
+    line = builder.build(build_result, prompts_dir: "relative/path")
+    assert_match "--prompts-dir #{File.expand_path('relative/path')}", line
   end
 
   # ---------------------------------------------------------------------------
@@ -83,7 +171,7 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_redirects_stdout_and_stderr_to_log
     line = builder.build(build_result(prompt_id: "daily_digest"))
-    assert_match ">> #{File.join(LOG_BASE, 'daily_digest.log')} 2>&1", line
+    assert_match "> #{File.join(LOG_BASE, 'daily_digest.log')} 2>&1", line
   end
 
   # ---------------------------------------------------------------------------
@@ -120,58 +208,9 @@ class TestJobBuilder < Minitest::Test
     assert line.start_with?("0 8 * * *"), "cron expression must be at the start of the line"
   end
 
-  # ---------------------------------------------------------------------------
-  # --prompts-dir passthrough
-  # ---------------------------------------------------------------------------
-
-  def test_build_without_prompts_dir_omits_flag
-    line = builder.build(build_result)
-    refute_match "--prompts-dir", line
-  end
-
-  def test_build_with_prompts_dir_includes_flag
-    line = Aias::JobBuilder.new(prompts_dir: "/tmp/my_prompts").build(build_result)
-    assert_match "--prompts-dir /tmp/my_prompts", line
-  end
-
-  def test_build_with_prompts_dir_flag_appears_before_prompt_id
-    line = Aias::JobBuilder.new(prompts_dir: "/tmp/my_prompts").build(build_result(prompt_id: "daily_digest"))
-    assert line.index("--prompts-dir") < line.index("daily_digest"),
-      "--prompts-dir must appear before the prompt_id in the command"
-  end
-
-  def test_build_with_nil_prompts_dir_omits_flag
-    line = Aias::JobBuilder.new(prompts_dir: nil).build(build_result)
-    refute_match "--prompts-dir", line
-  end
-
-  def test_build_with_empty_prompts_dir_omits_flag
-    line = Aias::JobBuilder.new(prompts_dir: "").build(build_result)
-    refute_match "--prompts-dir", line
-  end
-
-  def test_build_expands_relative_prompts_dir_to_absolute_path
-    line = Aias::JobBuilder.new(prompts_dir: "relative/path").build(build_result)
-    assert_match "--prompts-dir #{File.expand_path('relative/path')}", line
-  end
-
-  def test_build_prompts_dir_path_is_always_absolute
-    line = Aias::JobBuilder.new(prompts_dir: "some/relative/dir").build(build_result)
-    flag_value = line.match(/--prompts-dir (\S+)/)[1]
-    assert flag_value.start_with?("/"),
-      "Path in --prompts-dir flag must be absolute, got: #{flag_value}"
-  end
-
-  def test_build_with_prompts_dir_includes_prompt_id_in_command
-    line = Aias::JobBuilder.new(prompts_dir: "/tmp/my_prompts").build(
-      build_result(prompt_id: "daily_digest", schedule: "0 8 * * *")
-    )
-    assert_match "aia --prompts-dir /tmp/my_prompts daily_digest", line
-  end
-
   private
 
   def builder
-    @builder ||= Aias::JobBuilder.new(shell: "/bin/bash")
+    @builder ||= Aias::JobBuilder.new(shell: "/bin/bash", aia_path: AIA_PATH, env_file: ENV_FILE, config_file: CFG_FILE)
   end
 end
