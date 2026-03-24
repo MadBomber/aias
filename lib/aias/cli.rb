@@ -16,6 +16,8 @@ module Aias
     AIA_SCHEDULE_CFG = Paths::SCHEDULE_CFG
 
     # Aliases
+    map "-v"        => :version
+    map "--version" => :version
     map "ins"     => :install
     map "unins"   => :uninstall
     map "rm"      => :remove
@@ -86,3 +88,4 @@ require_relative "cli/dry_run"
 require_relative "cli/next"
 require_relative "cli/last"
 require_relative "cli/show"
+require_relative "cli/version"
