@@ -2,78 +2,98 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://madbomber.github.io/aias/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/add/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/check/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/clear/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/dry-run/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
+    </url>
+    <url>
+         <loc>https://madbomber.github.io/aias/cli/install/</loc>
+         <lastmod>2026-03-24</lastmod>
+    </url>
+    <url>
+         <loc>https://madbomber.github.io/aias/cli/last/</loc>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/list/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/next/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
+    </url>
+    <url>
+         <loc>https://madbomber.github.io/aias/cli/remove/</loc>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/show/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
+    </url>
+    <url>
+         <loc>https://madbomber.github.io/aias/cli/uninstall/</loc>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/cli/update/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/getting-started/installation/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/getting-started/quick-start/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
+    </url>
+    <url>
+         <loc>https://madbomber.github.io/aias/guides/configuration-layering/</loc>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/guides/cron-environment/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/guides/scheduling-prompts/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/guides/validation/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/reference/api/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/reference/architecture/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/reference/environment/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
     <url>
          <loc>https://madbomber.github.io/aias/reference/logging/</loc>
-         <lastmod>2026-03-23</lastmod>
+         <lastmod>2026-03-24</lastmod>
     </url>
 </urlset>

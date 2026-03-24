@@ -1269,7 +1269,7 @@
 
 
 <h1 id="cli-reference">CLI Reference<a class="headerlink" href="#cli-reference" title="Permanent link">&para;</a></h1>
-<p><code>aias</code> provides eight commands. All are available via <code>aias help</code> at the terminal.</p>
+<p><code>aias</code> provides nine commands. All are available via <code>aias help</code> at the terminal.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>aias help
 </span></code></pre></div>
 <h2 id="command-summary">Command Summary<a class="headerlink" href="#command-summary" title="Permanent link">&para;</a></h2>
@@ -1282,12 +1282,20 @@
 </thead>
 <tbody>
 <tr>
+<td><a href="install/"><code>aias install [PATTERN...]</code></a></td>
+<td>Capture PATH, API keys, and env vars into <code>env.sh</code>. Run once before scheduling any prompts.</td>
+</tr>
+<tr>
 <td><a href="update/"><code>aias update</code></a></td>
 <td>Scan prompts, validate, install all scheduled jobs. Primary command.</td>
 </tr>
 <tr>
 <td><a href="add/"><code>aias add PATH</code></a></td>
 <td>Add or replace a single prompt's cron job without touching others.</td>
+</tr>
+<tr>
+<td><a href="remove/"><code>aias remove PROMPT_ID</code></a></td>
+<td>Remove a single prompt's cron job. Aliases: <code>rm</code>, <code>delete</code>.</td>
 </tr>
 <tr>
 <td><a href="check/"><code>aias check</code></a></td>
@@ -1307,16 +1315,24 @@
 </tr>
 <tr>
 <td><a href="next/"><code>aias next [N]</code></a></td>
-<td>Show schedule and last-run information for installed jobs.</td>
+<td>Show next scheduled run time for installed jobs.</td>
+</tr>
+<tr>
+<td><a href="last/"><code>aias last [N]</code></a></td>
+<td>Show last-run time for installed jobs.</td>
 </tr>
 <tr>
 <td><a href="clear/"><code>aias clear</code></a></td>
 <td>Remove all aias-managed crontab entries.</td>
 </tr>
+<tr>
+<td><a href="uninstall/"><code>aias uninstall</code></a></td>
+<td>Remove the managed env block from <code>env.sh</code>.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="global-option">Global Option<a class="headerlink" href="#global-option" title="Permanent link">&para;</a></h2>
-<p><code>--prompts-dir PATH</code> (alias <code>-p</code>) overrides the <code>AIA_PROMPTS__DIR</code> / <code>AIA_PROMPTS_DIR</code> environment variables for any command that reads prompt files. It has no effect on commands that only read from the crontab (<code>list</code>, <code>show</code>, <code>next</code>, <code>clear</code>).</p>
+<p><code>--prompts-dir PATH</code> (alias <code>-p</code>) overrides the <code>AIA_PROMPTS__DIR</code> / <code>AIA_PROMPTS_DIR</code> environment variables for any command that reads prompt files. It has no effect on commands that only read from the crontab (<code>list</code>, <code>show</code>, <code>next</code>, <code>last</code>, <code>clear</code>).</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>aias<span class="w"> </span>--prompts-dir<span class="w"> </span>~/work/prompts<span class="w"> </span>update
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aias<span class="w"> </span>--prompts-dir<span class="w"> </span>~/work/prompts<span class="w"> </span>add<span class="w"> </span>~/work/prompts/standup.md
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>aias<span class="w"> </span>-p<span class="w"> </span>~/work/prompts<span class="w"> </span>dry-run

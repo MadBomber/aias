@@ -12,13 +12,9 @@
         <meta name="author" content="Dewayne VanHoozer">
       
       
-        <link rel="canonical" href="https://madbomber.github.io/aias/reference/architecture/">
+        <link rel="canonical" href="https://madbomber.github.io/aias/guides/configuration-layering/">
       
       
-        <link rel="prev" href="../../guides/cron-environment/">
-      
-      
-        <link rel="next" href="../api/">
       
       
         
@@ -29,7 +25,7 @@
     
     
       
-        <title>Architecture - aias</title>
+        <title>Configuration Layering - aias</title>
       
     
     
@@ -80,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#configuration-layering" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Configuration Layering
             
           </span>
         </div>
@@ -291,7 +287,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guides/scheduling-prompts/" class="md-tabs__link">
+        <a href="../scheduling-prompts/" class="md-tabs__link">
           
   
   
@@ -309,13 +305,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../reference/architecture/" class="md-tabs__link">
           
   
   
@@ -913,7 +907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/scheduling-prompts/" class="md-nav__link">
+      <a href="../scheduling-prompts/" class="md-nav__link">
         
   
   
@@ -941,7 +935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/validation/" class="md-nav__link">
+      <a href="../validation/" class="md-nav__link">
         
   
   
@@ -969,7 +963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guides/cron-environment/" class="md-nav__link">
+      <a href="../cron-environment/" class="md-nav__link">
         
   
   
@@ -1001,10 +995,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -1020,20 +1012,17 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -1051,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1066,37 +1055,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../reference/architecture/" class="md-nav__link">
         
   
   
@@ -1112,155 +1074,6 @@
   
 
       </a>
-      
-        
-
-  
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#class-responsibilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Class Responsibilities
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Class Responsibilities">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#aiascli" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aias::CLI
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aiaspromptscanner" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aias::PromptScanner
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aiasvalidator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aias::Validator
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aiasjobbuilder" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aias::JobBuilder
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aiascrontabmanager" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aias::CrontabManager
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-value-objects" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Value Objects
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#autoloading" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Autoloading
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Handling
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1273,7 +1086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../../reference/api/" class="md-nav__link">
         
   
   
@@ -1301,7 +1114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../environment/" class="md-nav__link">
+      <a href="../../reference/environment/" class="md-nav__link">
         
   
   
@@ -1329,7 +1142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../logging/" class="md-nav__link">
+      <a href="../../reference/logging/" class="md-nav__link">
         
   
   
@@ -1386,10 +1199,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#layer-1-envsh" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Layer 1 — env.sh
       
     </span>
   </a>
@@ -1397,10 +1210,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-flow" class="md-nav__link">
+  <a href="#layer-2-schedule-config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Flow
+        Layer 2 — Schedule config
       
     </span>
   </a>
@@ -1408,22 +1221,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#class-responsibilities" class="md-nav__link">
+  <a href="#layer-3-prompt-frontmatter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Class Responsibilities
+        Layer 3 — Prompt frontmatter
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Class Responsibilities">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-example-you_are_goodmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked Example: you_are_good.md
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worked Example: you_are_good.md">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#aiascli" class="md-nav__link">
+  <a href="#flags-debug-true-verbose-true" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aias::CLI
+        flags: debug: true / verbose: true
       
     </span>
   </a>
@@ -1431,10 +1255,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#aiaspromptscanner" class="md-nav__link">
+  <a href="#provider-ollama" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aias::PromptScanner
+        provider: ollama
       
     </span>
   </a>
@@ -1442,10 +1266,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#aiasvalidator" class="md-nav__link">
+  <a href="#models-name-gpt-osslatest" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aias::Validator
+        models: [{name: gpt-oss:latest}]
       
     </span>
   </a>
@@ -1453,10 +1277,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#aiasjobbuilder" class="md-nav__link">
+  <a href="#schedule-every-2-minutes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aias::JobBuilder
+        schedule: every 2 minutes
       
     </span>
   </a>
@@ -1464,10 +1288,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#aiascrontabmanager" class="md-nav__link">
+  <a href="#required-shared_tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Aias::CrontabManager
+        required: ['shared_tools']
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tools-rejected-browser_tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        tools: rejected: ['browser_tool']
       
     </span>
   </a>
@@ -1480,10 +1315,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-value-objects" class="md-nav__link">
+  <a href="#the-full-execution-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Value Objects
+        The Full Execution Flow
       
     </span>
   </a>
@@ -1491,21 +1326,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#autoloading" class="md-nav__link">
+  <a href="#keeping-layers-separate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Autoloading
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#error-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Error Handling
+        Keeping Layers Separate
       
     </span>
   </a>
@@ -1538,110 +1362,200 @@
   
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p><code>aias</code> is a thin orchestration layer over three well-established tools: <code>grep</code> (for discovery), <code>PM::Metadata</code> from the <code>prompt_manager</code> gem (for frontmatter parsing), and <code>fugit</code> (for cron expression parsing and natural-language schedule resolution). Its five classes have narrow, well-defined responsibilities.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌─────────────────────────────────────────────────────────────────┐
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                         aias gem                                │
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│                                                                 │
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   Aias::CLI                                                     │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── Aias::PromptScanner   grep -rl + PM::Metadata             │
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── Aias::Validator       schedule syntax + params + binary   │
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── Aias::JobBuilder      prompt ID + schedule → cron line    │
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   └── Aias::CrontabManager  crontab(1) read/write               │
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└─────────────────────────────────────────────────────────────────┘
+<h1 id="configuration-layering">Configuration Layering<a class="headerlink" href="#configuration-layering" title="Permanent link">&para;</a></h1>
+<p>Every <code>aias</code>-scheduled job is configured through three independent layers that AIA merges at runtime. Understanding those layers — and their precedence — is the key to writing prompts that work reliably in a cron context.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>env.sh              ← Layer 1: runtime environment
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>schedule/aia.yml    ← Layer 2: base AIA configuration for all scheduled jobs
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>prompt frontmatter  ← Layer 3: per-prompt overrides (wins over everything)
 </span></code></pre></div>
-<h2 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$AIA_PROMPTS_DIR
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>      │
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>      ▼
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>PromptScanner#scan
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>      │ returns Array&lt;PromptScanner::Result&gt;
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>      │   Result = Data.define(:prompt_id, :schedule, :metadata, :file_path)
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>      ▼
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>Validator#validate(result)
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>      │ returns ValidationResult = Data.define(:valid?, :errors)
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>      ▼
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>[partition into valid / invalid]
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>      │
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>      ├── invalid → warn to stderr, skip
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>      │
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>      └── valid ──►  JobBuilder#build(result)
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>                         │ returns String (raw cron line)
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>                         ▼
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>                    CrontabManager#install(cron_lines)
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>                         │ writes via crontab(1) command
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                         ▼
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>                    crontab (OS cron daemon manages execution)
-</span></code></pre></div>
-<h2 id="class-responsibilities">Class Responsibilities<a class="headerlink" href="#class-responsibilities" title="Permanent link">&para;</a></h2>
-<h3 id="aiascli"><code>Aias::CLI</code><a class="headerlink" href="#aiascli" title="Permanent link">&para;</a></h3>
-<p>The entry point. A <code>Thor</code> subclass that exposes nine commands. CLI delegates all domain logic to its four collaborators; it only formats output and handles errors.</p>
-<p>Collaborators are created lazily and accessible via private accessors (<code>scanner</code>, <code>validator</code>, <code>builder</code>, <code>manager</code>). Tests inject replacements by setting instance variables before calling a command.</p>
-<h3 id="aiaspromptscanner"><code>Aias::PromptScanner</code><a class="headerlink" href="#aiaspromptscanner" title="Permanent link">&para;</a></h3>
-<p>Discovers scheduled prompts in two steps:</p>
-<ol>
-<li><strong>grep phase</strong>: runs <code>grep -rl "schedule:" $AIA_PROMPTS_DIR</code> via <code>Open3.capture3</code> (no shell injection)</li>
-<li><strong>parse phase</strong>: for each candidate file, calls <code>PM.parse(absolute_path)</code> and reads <code>metadata.schedule</code></li>
-</ol>
-<p>Returns an array of frozen <code>Result</code> value objects. Raises <code>Aias::Error</code> if the prompts directory is missing or unreadable.</p>
-<h3 id="aiasvalidator"><code>Aias::Validator</code><a class="headerlink" href="#aiasvalidator" title="Permanent link">&para;</a></h3>
-<p>Validates a single <code>PromptScanner::Result</code> against three rules (see <a href="../../guides/validation/">Validation</a>). Returns a frozen <code>ValidationResult</code> value object.</p>
-<p>The <code>aia</code> binary check is memoised — it runs at most once per <code>Validator</code> instance.</p>
-<p>The <code>binary_to_check:</code> constructor parameter makes the binary check testable without stubs.</p>
-<h3 id="aiasjobbuilder"><code>Aias::JobBuilder</code><a class="headerlink" href="#aiasjobbuilder" title="Permanent link">&para;</a></h3>
-<p>Pure function: converts a <code>PromptScanner::Result</code> into a raw cron line string. No I/O, no side effects.</p>
-<p>Uses <code>fugit</code> to resolve the <code>schedule:</code> value to a canonical 5-field cron expression, then assembles:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>&lt;cron_expr&gt; &lt;shell&gt; -l -c &#39;aia [--prompts-dir DIR] &lt;prompt_id&gt; &gt;&gt; &lt;log&gt; 2&gt;&amp;1&#39;
-</span></code></pre></div>
-<p>Uses <code>ENV["SHELL"]</code> (defaulting to <code>/bin/bash</code>) as the login shell. Log paths follow the pattern <code>~/.aia/schedule/logs/&lt;prompt_id&gt;.log</code>.</p>
-<h3 id="aiascrontabmanager"><code>Aias::CrontabManager</code><a class="headerlink" href="#aiascrontabmanager" title="Permanent link">&para;</a></h3>
-<p>Manages the aias-owned block in the user's crontab by directly invoking the system <code>crontab(1)</code> command via <code>Open3</code>. Three categories of operations:</p>
+<p>Frontmatter always wins. The schedule config provides defaults. <code>env.sh</code> makes the process runnable.</p>
+<hr />
+<h2 id="layer-1-envsh">Layer 1 — env.sh<a class="headerlink" href="#layer-1-envsh" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>~/.config/aia/schedule/env.sh</code>
+<strong>Purpose:</strong> Reproduce the environment that existed when <code>aias install</code> was run.</p>
+<p>Cron starts processes with a nearly empty environment: no Ruby version manager, no user-defined variables, no API keys. <code>env.sh</code> is sourced before every cron invocation, injecting the values AIA and its dependencies need:</p>
 <table>
 <thead>
 <tr>
-<th>Category</th>
-<th>Methods</th>
-<th>How</th>
+<th>What it provides</th>
+<th>Why it matters</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Write</td>
-<td><code>install(cron_lines)</code>, <code>add_job(cron_line, prompt_id)</code>, <code>clear</code></td>
-<td><code>Open3.popen2(crontab_command, "-")</code> — pipes new content to stdin</td>
+<td><code>PATH</code></td>
+<td>rbenv/asdf shims, gem bin dirs, MCP server binaries</td>
 </tr>
 <tr>
-<td>Read</td>
-<td><code>installed_jobs</code>, <code>current_block</code></td>
-<td><code>Open3.capture3(crontab_command, "-l")</code></td>
+<td><code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, etc.</td>
+<td>LLM API authentication</td>
 </tr>
 <tr>
-<td>Preview</td>
-<td><code>dry_run(cron_lines)</code></td>
-<td><code>Array(cron_lines).join("\n")</code> — no system calls</td>
+<td><code>AIA_*</code> variables</td>
+<td>AIA runtime defaults (<code>AIA_PROMPTS__DIR</code>, <code>AIA_MODEL</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>LANG</code>, <code>LC_ALL</code></td>
+<td>UTF-8 encoding for Ruby string handling</td>
 </tr>
 </tbody>
 </table>
-<p>The managed block is delimited by <code># BEGIN aias</code> and <code># END aias</code> marker comments. All other crontab entries are preserved verbatim.</p>
-<p>The <code>crontab_command:</code> and <code>log_base:</code> constructor parameters make the manager fully testable with a fake crontab script backed by a tmpfile — no system crontab is ever touched during tests.</p>
-<h2 id="key-value-objects">Key Value Objects<a class="headerlink" href="#key-value-objects" title="Permanent link">&para;</a></h2>
-<p>Both value objects are defined with <code>Data.define</code> (Ruby 3.2+) and are automatically frozen and immutable.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Returned by PromptScanner#scan</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">::</span><span class="no">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Data</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="ss">:prompt_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:schedule</span><span class="p">,</span><span class="w"> </span><span class="ss">:metadata</span><span class="p">,</span><span class="w"> </span><span class="ss">:file_path</span><span class="p">)</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Returned by Validator#validate</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">ValidationResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Data</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="ss">:valid?</span><span class="p">,</span><span class="w"> </span><span class="ss">:errors</span><span class="p">)</span>
+<p><strong>Populated by:</strong> <code>aias install</code> — run once (or re-run when your shell environment changes). If you add a new API key or install a new MCP server binary, re-run <code>aias install</code> to capture it.</p>
+<hr />
+<h2 id="layer-2-schedule-config">Layer 2 — Schedule config<a class="headerlink" href="#layer-2-schedule-config" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>~/.config/aia/schedule/aia.yml</code>
+<strong>Purpose:</strong> Base AIA configuration shared by all scheduled prompts.</p>
+<p>Passed to every cron entry via the <code>--config</code> flag:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>aia<span class="w"> </span>--prompts-dir<span class="w"> </span>/path/to/prompts<span class="w"> </span>--config<span class="w"> </span>~/.config/aia/schedule/aia.yml<span class="w"> </span>you_are_good
 </span></code></pre></div>
-<h2 id="autoloading">Autoloading<a class="headerlink" href="#autoloading" title="Permanent link">&para;</a></h2>
-<p>Zeitwerk handles autoloading. The <code>cli</code> filename is mapped to <code>Aias::CLI</code> (not <code>Aias::Cli</code>) via a custom inflection:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Zeitwerk</span><span class="o">::</span><span class="no">Loader</span><span class="o">.</span><span class="n">for_gem</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">loader</span><span class="o">.</span><span class="n">inflector</span><span class="o">.</span><span class="n">inflect</span><span class="p">(</span><span class="s2">&quot;cli&quot;</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="s2">&quot;CLI&quot;</span><span class="p">)</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">loader</span><span class="o">.</span><span class="n">setup</span>
+<p>When <code>--config</code> is used, AIA resets to its built-in defaults and loads this file. Your interactive <code>~/.config/aia/aia.yml</code> is <strong>not</strong> read during scheduled runs — the schedule config replaces it entirely. This isolation is intentional: scheduled jobs should not be affected by changes to your interactive configuration.</p>
+<p>The schedule config sets:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Typical value</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>llm.adapter</code></td>
+<td><code>ruby_llm</code></td>
+<td>Default AI backend</td>
+</tr>
+<tr>
+<td><code>models</code></td>
+<td><code>claude-haiku-4-5</code></td>
+<td>Default model (low cost, fast)</td>
+</tr>
+<tr>
+<td><code>llm.temperature</code>, <code>max_tokens</code></td>
+<td>base LLM parameters</td>
+<td>Applied unless overridden by frontmatter</td>
+</tr>
+<tr>
+<td><code>output.append</code></td>
+<td><code>false</code></td>
+<td>Each run overwrites the output file</td>
+</tr>
+<tr>
+<td><code>logging.llm.level</code></td>
+<td><code>warn</code></td>
+<td>Log only warnings from the LLM layer</td>
+</tr>
+<tr>
+<td><code>logging.mcp.level</code></td>
+<td><code>warn</code></td>
+<td>Log only warnings from MCP</td>
+</tr>
+<tr>
+<td><code>mcp_servers</code></td>
+<td>github, brew, crimson, etc.</td>
+<td>MCP tools available to all scheduled prompts</td>
+</tr>
+<tr>
+<td><code>require_libs</code></td>
+<td><code>["shared_tools"]</code></td>
+<td>Libraries loaded for every scheduled run</td>
+</tr>
+<tr>
+<td><code>prompts.dir</code></td>
+<td>your prompts path</td>
+<td>Fallback if <code>--prompts-dir</code> is not on the command line</td>
+</tr>
+</tbody>
+</table>
+<p>Keep the schedule config conservative. It should represent the minimum needed for any scheduled prompt to run. Per-prompt requirements go in the frontmatter.</p>
+<hr />
+<h2 id="layer-3-prompt-frontmatter">Layer 3 — Prompt frontmatter<a class="headerlink" href="#layer-3-prompt-frontmatter" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> the prompt <code>.md</code> file itself
+<strong>Purpose:</strong> Per-prompt overrides that make each prompt self-contained.</p>
+<p>AIA reads the YAML frontmatter of the prompt file after loading the schedule config. Frontmatter keys override any matching key in the schedule config. A prompt should declare in its frontmatter everything that makes it different from the base config.</p>
+<hr />
+<h2 id="worked-example-you_are_goodmd">Worked Example: <code>you_are_good.md</code><a class="headerlink" href="#worked-example-you_are_goodmd" title="Permanent link">&para;</a></h2>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nn">---</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nt">flags</span><span class="p">:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nt">models</span><span class="p">:</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-oss:latest</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">role</span><span class="p">:</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="nt">schedule</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">every 2 minutes</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;shared_tools&#39;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="nt">tools</span><span class="p">:</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">  </span><span class="nt">rejected</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;browser_tool&#39;</span><span class="p p-Indicator">]</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="nn">---</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="l l-Scalar l-Scalar-Plain">You are a supportive coding mentor. Generate a single, original positive</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="l l-Scalar l-Scalar-Plain">affirmation sentence about my Ruby programming skills...</span>
 </span></code></pre></div>
-<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
-<p>A single <code>Aias::Error &lt; StandardError</code> is raised for unrecoverable conditions (missing prompts dir, crontab write failure). The CLI rescues it, prints the message, and exits 1.</p>
-<p>Recoverable per-prompt issues (invalid schedule, missing parameter defaults) are collected as error strings in <code>ValidationResult#errors</code> and never raised as exceptions.</p>
+<h3 id="flags-debug-true-verbose-true"><code>flags: debug: true / verbose: true</code><a class="headerlink" href="#flags-debug-true-verbose-true" title="Permanent link">&para;</a></h3>
+<p>The schedule config sets <code>logging.llm.level: warn</code> and <code>logging.mcp.level: warn</code> — quiet output for most jobs. This prompt overrides that with full debug and verbose logging, producing a detailed log entry for every run. Useful for a prompt you want to keep an eye on, or while developing a new prompt.</p>
+<h3 id="provider-ollama"><code>provider: ollama</code><a class="headerlink" href="#provider-ollama" title="Permanent link">&para;</a></h3>
+<p>The schedule config's <code>llm.adapter: ruby_llm</code> points at cloud providers by default (Anthropic, OpenAI, etc.). <code>provider: ollama</code> routes this prompt to a local Ollama server instead.</p>
+<p><strong>Why this matters for scheduled jobs:</strong> cloud API calls can fail with rate limits, transient network errors, or timeouts. A local Ollama model has none of those risks. There are also no API costs. For prompts that don't require GPT-4-level reasoning — affirmations, local system tasks, scripted workflows — a local model is more reliable in an unattended context.</p>
+<h3 id="models-name-gpt-osslatest"><code>models: [{name: gpt-oss:latest}]</code><a class="headerlink" href="#models-name-gpt-osslatest" title="Permanent link">&para;</a></h3>
+<p>Selects the specific Ollama model to use. Overrides the schedule config's <code>claude-haiku-4-5</code> default. The model must be pulled and running in Ollama before the cron job fires.</p>
+<h3 id="schedule-every-2-minutes"><code>schedule: every 2 minutes</code><a class="headerlink" href="#schedule-every-2-minutes" title="Permanent link">&para;</a></h3>
+<p>This key is read exclusively by <code>aias</code> when building the cron entry. AIA itself ignores it at runtime. It is what caused <code>aias add</code> to produce:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>0,2,4,6,8,...,58 * * * * /opt/homebrew/bin/bash -c &#39;...&#39;
+</span></code></pre></div>
+<h3 id="required-shared_tools"><code>required: ['shared_tools']</code><a class="headerlink" href="#required-shared_tools" title="Permanent link">&para;</a></h3>
+<p>Loads the <code>shared_tools</code> library, which provides the <code>eval</code> tool (shell command execution). The schedule config already declares <code>require_libs: ["shared_tools"]</code> globally, so this is redundant for this prompt — but it makes the prompt self-documenting. A reader can tell from the frontmatter alone what the prompt needs.</p>
+<p>The <code>eval</code> tool is what allows the model to execute <code>say "..."</code> as a macOS speech command.</p>
+<h3 id="tools-rejected-browser_tool"><code>tools: rejected: ['browser_tool']</code><a class="headerlink" href="#tools-rejected-browser_tool" title="Permanent link">&para;</a></h3>
+<p>Prevents the browser tool from being offered to the model even if the active MCP servers expose it. The schedule config loads several MCP servers (GitHub, brew, crimson, claude_code). Some of those may expose browsing capabilities; <code>rejected</code> is the safety valve that keeps this prompt narrowly scoped to only what it needs: the <code>eval</code>/shell tool.</p>
+<hr />
+<h2 id="the-full-execution-flow">The Full Execution Flow<a class="headerlink" href="#the-full-execution-flow" title="Permanent link">&para;</a></h2>
+<p>When cron fires this entry:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>/opt/homebrew/bin/bash<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;source ~/.config/aia/schedule/env.sh &amp;&amp; \</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="s1">  /path/to/aia \</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="s1">    --prompts-dir /path/to/example_prompts \</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="s1">    --config ~/.config/aia/schedule/aia.yml \</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="s1">    you_are_good &gt; ~/.config/aia/schedule/logs/you_are_good.log 2&gt;&amp;1&#39;</span>
+</span></code></pre></div>
+<ol>
+<li><strong><code>source env.sh</code></strong> — PATH, API keys, AIA_* vars, LANG/LC_ALL injected into the process environment</li>
+<li><strong><code>aia</code> starts</strong> — loads built-in defaults, then loads <code>schedule/aia.yml</code> via <code>--config</code> (base config set)</li>
+<li><strong><code>--prompts-dir</code></strong> — tells AIA where to find prompt files, bypassing any stale <code>prompts.dir</code> in the config</li>
+<li><strong>AIA locates <code>you_are_good.md</code></strong> in the prompts directory</li>
+<li><strong>Frontmatter merged</strong> — <code>provider: ollama</code>, <code>models: gpt-oss:latest</code>, <code>flags</code>, <code>required</code>, <code>tools.rejected</code> all applied on top of the schedule config</li>
+<li><strong><code>shared_tools</code> loaded</strong> — <code>eval</code>/shell tool registered and available to the model</li>
+<li><strong>Prompt sent to Ollama <code>gpt-oss:latest</code></strong> — no API call, no network, no cost</li>
+<li><strong>Model generates affirmation</strong>, then calls <code>eval</code> with <code>say "..."</code></li>
+<li><strong>macOS <code>say</code></strong> speaks the affirmation aloud</li>
+<li><strong>All output</strong> (verbose/debug + response) written to <code>~/.config/aia/schedule/logs/you_are_good.log</code></li>
+</ol>
+<hr />
+<h2 id="keeping-layers-separate">Keeping Layers Separate<a class="headerlink" href="#keeping-layers-separate" title="Permanent link">&para;</a></h2>
+<p>A useful mental model: each layer answers a different question.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Question it answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>env.sh</code></td>
+<td>Can the process find the tools it needs?</td>
+</tr>
+<tr>
+<td><code>schedule/aia.yml</code></td>
+<td>What are the safe defaults for any unattended job?</td>
+</tr>
+<tr>
+<td>Prompt frontmatter</td>
+<td>What does <em>this specific prompt</em> need that differs from those defaults?</td>
+</tr>
+</tbody>
+</table>
+<p>Settings that belong in the schedule config: output format, default model and adapter, log verbosity, MCP server list, libraries that every prompt uses.</p>
+<p>Settings that belong in frontmatter: anything prompt-specific — provider override, a specialised model, flags for debugging, additional <code>required</code> libs, tool restrictions.</p>
+<p>Settings that belong only in <code>env.sh</code>: secrets (API keys), PATH construction, locale.</p>
+<p>Never put API keys in frontmatter or the schedule config. They would be committed to version control if you track your prompts in git.</p>
 
 
 
@@ -1674,44 +1588,6 @@
       
         <footer class="md-footer">
   
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../../guides/cron-environment/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Cron Environment">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Cron Environment
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../api/" class="md-footer__link md-footer__link--next" aria-label="Next: API">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                API
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
     
   
   <div class="md-footer-meta md-typeset">

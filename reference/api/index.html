@@ -1288,6 +1288,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#last_runn-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #last_run(n = "5")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#clear" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1859,6 +1870,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#last_runn-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #last_run(n = "5")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#clear" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2266,26 +2288,31 @@
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">cli</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="s2">&quot;reports/weekly&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h4 id="upcomingn-5"><code>#upcoming(n = "5")</code><a class="headerlink" href="#upcomingn-5" title="Permanent link">&para;</a></h4>
-<p>Print schedule and last-run information for all installed jobs. Aliased as <code>aias next</code> on the command line.</p>
+<p>Print the next scheduled run time for installed jobs, computed via <code>fugit</code>. Aliased as <code>aias next</code> on the command line.</p>
 <div class="language-ruby highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">cli</span><span class="o">.</span><span class="n">upcoming</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">cli</span><span class="o">.</span><span class="n">upcoming</span><span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">)</span>
 </span></code></pre></div>
+<h4 id="last_runn-5"><code>#last_run(n = "5")</code><a class="headerlink" href="#last_runn-5" title="Permanent link">&para;</a></h4>
+<p>Print the last-run time for installed jobs, derived from the log file modification timestamp. Aliased as <code>aias last</code> on the command line.</p>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">cli</span><span class="o">.</span><span class="n">last_run</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">cli</span><span class="o">.</span><span class="n">last_run</span><span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">)</span>
+</span></code></pre></div>
 <h4 id="clear"><code>#clear</code><a class="headerlink" href="#clear" title="Permanent link">&para;</a></h4>
 <p>Remove all aias-managed crontab entries.</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">cli</span><span class="o">.</span><span class="n">clear</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">cli</span><span class="o">.</span><span class="n">clear</span>
 </span></code></pre></div>
 <h3 id="dependency-injection">Dependency Injection<a class="headerlink" href="#dependency-injection" title="Permanent link">&para;</a></h3>
 <p>Collaborators are initialized lazily via private accessors. Set instance variables before invoking a command to inject alternatives:</p>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">cli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">CLI</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">cli</span><span class="o">.</span><span class="n">instance_variable_set</span><span class="p">(</span><span class="ss">:@validator</span><span class="p">,</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">binary_to_check</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ruby&quot;</span><span class="p">))</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">cli</span><span class="o">.</span><span class="n">instance_variable_set</span><span class="p">(</span><span class="ss">:@scanner</span><span class="p">,</span><span class="w">  </span><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">prompts_dir</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/test&quot;</span><span class="p">))</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">cli</span><span class="o">.</span><span class="n">update</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">cli</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">CLI</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">cli</span><span class="o">.</span><span class="n">instance_variable_set</span><span class="p">(</span><span class="ss">:@validator</span><span class="p">,</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">binary_to_check</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ruby&quot;</span><span class="p">))</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">cli</span><span class="o">.</span><span class="n">instance_variable_set</span><span class="p">(</span><span class="ss">:@scanner</span><span class="p">,</span><span class="w">  </span><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">prompts_dir</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/tmp/test&quot;</span><span class="p">))</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">cli</span><span class="o">.</span><span class="n">update</span>
 </span></code></pre></div>
 <hr />
 <h2 id="aiaspromptscanner"><code>Aias::PromptScanner</code><a class="headerlink" href="#aiaspromptscanner" title="Permanent link">&para;</a></h2>
 <p>Discovers AIA prompt files that declare a <code>schedule:</code> key and parses their frontmatter.</p>
 <h3 id="result"><code>::Result</code><a class="headerlink" href="#result" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">::</span><span class="no">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Data</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="ss">:prompt_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:schedule</span><span class="p">,</span><span class="w"> </span><span class="ss">:metadata</span><span class="p">,</span><span class="w"> </span><span class="ss">:file_path</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">::</span><span class="no">Result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Data</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="ss">:prompt_id</span><span class="p">,</span><span class="w"> </span><span class="ss">:schedule</span><span class="p">,</span><span class="w"> </span><span class="ss">:metadata</span><span class="p">,</span><span class="w"> </span><span class="ss">:file_path</span><span class="p">)</span>
 </span></code></pre></div>
 <p>A frozen, immutable value object. Fields:</p>
 <table>
@@ -2320,8 +2347,8 @@
 </tbody>
 </table>
 <h3 id="new"><code>.new</code><a class="headerlink" href="#new" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">scanner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">scanner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">prompts_dir</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/prompts&quot;</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">scanner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">scanner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">PromptScanner</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">prompts_dir</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/prompts&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <table>
 <thead>
@@ -2340,7 +2367,7 @@
 </tbody>
 </table>
 <h3 id="scan"><code>#scan</code><a class="headerlink" href="#scan" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="w">  </span><span class="c1"># =&gt; Array&lt;Aias::PromptScanner::Result&gt;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scanner</span><span class="o">.</span><span class="n">scan</span><span class="w">  </span><span class="c1"># =&gt; Array&lt;Aias::PromptScanner::Result&gt;</span>
 </span></code></pre></div>
 <p>Returns an array of <code>Result</code> objects for every prompt that has a non-empty <code>schedule:</code> key.</p>
 <p><strong>Raises</strong> <code>Aias::Error</code> when:</p>
@@ -2351,7 +2378,7 @@
 </ul>
 <p>Prompts with unparseable frontmatter are warned to stderr and skipped (no exception).</p>
 <h3 id="scan_one"><code>#scan_one</code><a class="headerlink" href="#scan_one" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scanner</span><span class="o">.</span><span class="n">scan_one</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; Aias::PromptScanner::Result</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scanner</span><span class="o">.</span><span class="n">scan_one</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; Aias::PromptScanner::Result</span>
 </span></code></pre></div>
 <p>Parses a single prompt file by path (absolute or relative). Returns a <code>Result</code> on success.</p>
 <p><strong>Raises</strong> <code>Aias::Error</code> when:</p>
@@ -2394,7 +2421,7 @@
 <h2 id="aiasvalidator"><code>Aias::Validator</code><a class="headerlink" href="#aiasvalidator" title="Permanent link">&para;</a></h2>
 <p>Validates a <code>PromptScanner::Result</code> against three rules: schedule syntax, parameter completeness, and <code>aia</code> binary presence.</p>
 <h3 id="validationresult"><code>::ValidationResult</code><a class="headerlink" href="#validationresult" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">ValidationResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Data</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="ss">:valid?</span><span class="p">,</span><span class="w"> </span><span class="ss">:errors</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">ValidationResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Data</span><span class="o">.</span><span class="n">define</span><span class="p">(</span><span class="ss">:valid?</span><span class="p">,</span><span class="w"> </span><span class="ss">:errors</span><span class="p">)</span>
 </span></code></pre></div>
 <p>A frozen, immutable value object. Fields:</p>
 <table>
@@ -2419,12 +2446,12 @@
 </tbody>
 </table>
 <h3 id="new_1"><code>.new</code><a class="headerlink" href="#new_1" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="ss">shell</span><span class="p">:</span><span class="w">         </span><span class="s2">&quot;/bin/bash&quot;</span><span class="p">,</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="ss">binary_to_check</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aia&quot;</span><span class="p">,</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="ss">fallback_dirs</span><span class="p">:</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">BINARY_FALLBACK_DIRS</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">validator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="ss">shell</span><span class="p">:</span><span class="w">         </span><span class="s2">&quot;/bin/bash&quot;</span><span class="p">,</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="ss">binary_to_check</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aia&quot;</span><span class="p">,</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="ss">fallback_dirs</span><span class="p">:</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">BINARY_FALLBACK_DIRS</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">)</span>
 </span></code></pre></div>
 <table>
 <thead>
@@ -2454,35 +2481,35 @@
 </table>
 <p><code>binary_to_check:</code> and <code>fallback_dirs:</code> are primarily useful in tests — pass <code>"ruby"</code> for a check that always succeeds, or an empty/nonexistent directory list for one that always fails.</p>
 <h3 id="binary_fallback_dirs"><code>::BINARY_FALLBACK_DIRS</code><a class="headerlink" href="#binary_fallback_dirs" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">BINARY_FALLBACK_DIRS</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1"># =&gt; [</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1">#      &quot;~/.rbenv/shims&quot;,</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1">#      &quot;~/.rbenv/bin&quot;,</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1">#      &quot;~/.rvm/bin&quot;,</span>
-</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1">#      &quot;~/.asdf/shims&quot;,</span>
-</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c1">#      &quot;/usr/local/bin&quot;,</span>
-</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="c1">#      &quot;/usr/bin&quot;,</span>
-</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="c1">#      &quot;/opt/homebrew/bin&quot;</span>
-</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1">#    ]</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="no">Aias</span><span class="o">::</span><span class="no">Validator</span><span class="o">::</span><span class="no">BINARY_FALLBACK_DIRS</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># =&gt; [</span>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1">#      &quot;~/.rbenv/shims&quot;,</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1">#      &quot;~/.rbenv/bin&quot;,</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1">#      &quot;~/.rvm/bin&quot;,</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1">#      &quot;~/.asdf/shims&quot;,</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1">#      &quot;/usr/local/bin&quot;,</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1">#      &quot;/usr/bin&quot;,</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1">#      &quot;/opt/homebrew/bin&quot;</span>
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="c1">#    ]</span>
 </span></code></pre></div>
 <p>The default fallback directory list. Covers rbenv, rvm, asdf, Homebrew (Intel + Apple Silicon), and the standard system paths.</p>
 <h3 id="validate"><code>#validate</code><a class="headerlink" href="#validate" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">vr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">scanner_result</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; Aias::Validator::ValidationResult</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">vr</span><span class="o">.</span><span class="n">valid?</span><span class="w">   </span><span class="c1"># =&gt; true or false</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">vr</span><span class="o">.</span><span class="n">errors</span><span class="w">   </span><span class="c1"># =&gt; [&quot;Schedule &#39;x&#39;: ...&quot;, &quot;Parameter &#39;y&#39; has no default ...&quot;]</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">vr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">scanner_result</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; Aias::Validator::ValidationResult</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">vr</span><span class="o">.</span><span class="n">valid?</span><span class="w">   </span><span class="c1"># =&gt; true or false</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">vr</span><span class="o">.</span><span class="n">errors</span><span class="w">   </span><span class="c1"># =&gt; [&quot;Schedule &#39;x&#39;: ...&quot;, &quot;Parameter &#39;y&#39; has no default ...&quot;]</span>
 </span></code></pre></div>
 <p>The binary check result is memoised per <code>Validator</code> instance and only runs once.</p>
 <h3 id="binary_in_fallback_location"><code>#binary_in_fallback_location?</code><a class="headerlink" href="#binary_in_fallback_location" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">validator</span><span class="o">.</span><span class="n">binary_in_fallback_location?</span><span class="w">  </span><span class="c1"># =&gt; true or false</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">validator</span><span class="o">.</span><span class="n">binary_in_fallback_location?</span><span class="w">  </span><span class="c1"># =&gt; true or false</span>
 </span></code></pre></div>
 <p>Returns <code>true</code> when an executable file named <code>binary_to_check</code> exists in any of the <code>fallback_dirs</code>. Called automatically by <code>#validate</code>; exposed publicly for diagnostics.</p>
 <hr />
 <h2 id="aiasjobbuilder"><code>Aias::JobBuilder</code><a class="headerlink" href="#aiasjobbuilder" title="Permanent link">&para;</a></h2>
 <p>Converts a <code>PromptScanner::Result</code> into a raw cron line string. Pure function — no I/O.</p>
 <h3 id="new_2"><code>.new</code><a class="headerlink" href="#new_2" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">JobBuilder</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">JobBuilder</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">shell</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/bin/zsh&quot;</span><span class="p">)</span>
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">JobBuilder</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">shell</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/bin/zsh&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">prompts_dir</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/prompts&quot;</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">JobBuilder</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">JobBuilder</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">shell</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/bin/zsh&quot;</span><span class="p">)</span>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">JobBuilder</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">shell</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/bin/zsh&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">prompts_dir</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/path/to/prompts&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <table>
 <thead>
@@ -2506,18 +2533,18 @@
 </tbody>
 </table>
 <h3 id="build"><code>#build</code><a class="headerlink" href="#build" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">cron_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">scanner_result</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">cron_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">scanner_result</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; String</span>
 </span></code></pre></div>
 <p>Returns a fully-formed cron line string suitable for passing to <code>CrontabManager#install</code> or <code>#add_job</code>. Uses <code>fugit</code> to resolve the <code>schedule:</code> value to a canonical 5-field cron expression.</p>
 <p><strong>Without <code>prompts_dir</code>:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>0 8 * * * /bin/zsh -l -c &#39;aia daily_digest &gt;&gt; /Users/you/.aia/schedule/logs/daily_digest.log 2&gt;&amp;1&#39;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>0 8 * * * /bin/zsh -l -c &#39;aia daily_digest &gt;&gt; /Users/you/.aia/schedule/logs/daily_digest.log 2&gt;&amp;1&#39;
 </span></code></pre></div>
 <p><strong>With <code>prompts_dir: "/data/prompts"</code>:</strong></p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>0 8 * * * /bin/zsh -l -c &#39;aia --prompts-dir /data/prompts daily_digest &gt;&gt; /Users/you/.aia/schedule/logs/daily_digest.log 2&gt;&amp;1&#39;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>0 8 * * * /bin/zsh -l -c &#39;aia --prompts-dir /data/prompts daily_digest &gt;&gt; /Users/you/.aia/schedule/logs/daily_digest.log 2&gt;&amp;1&#39;
 </span></code></pre></div>
 <h3 id="log_path_for"><code>#log_path_for</code><a class="headerlink" href="#log_path_for" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">builder</span><span class="o">.</span><span class="n">log_path_for</span><span class="p">(</span><span class="s2">&quot;daily_digest&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1"># =&gt; &quot;/Users/you/.aia/schedule/logs/daily_digest.log&quot;</span>
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">builder</span><span class="o">.</span><span class="n">log_path_for</span><span class="p">(</span><span class="s2">&quot;reports/weekly&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1"># =&gt; &quot;/Users/you/.aia/schedule/logs/reports/weekly.log&quot;</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">builder</span><span class="o">.</span><span class="n">log_path_for</span><span class="p">(</span><span class="s2">&quot;daily_digest&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1"># =&gt; &quot;/Users/you/.aia/schedule/logs/daily_digest.log&quot;</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">builder</span><span class="o">.</span><span class="n">log_path_for</span><span class="p">(</span><span class="s2">&quot;reports/weekly&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1"># =&gt; &quot;/Users/you/.aia/schedule/logs/reports/weekly.log&quot;</span>
 </span></code></pre></div>
 <p>Returns the absolute log path for a given prompt ID.</p>
 <hr />
@@ -2551,8 +2578,8 @@
 </tbody>
 </table>
 <h3 id="new_3"><code>.new</code><a class="headerlink" href="#new_3" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">manager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">CrontabManager</span><span class="o">.</span><span class="n">new</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">manager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">CrontabManager</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">crontab_command</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crontab&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">log_base</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/custom/log/base&quot;</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">manager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">CrontabManager</span><span class="o">.</span><span class="n">new</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">manager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Aias</span><span class="o">::</span><span class="no">CrontabManager</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">crontab_command</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crontab&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">log_base</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/custom/log/base&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <table>
 <thead>
@@ -2577,45 +2604,45 @@
 </table>
 <p>The <code>crontab_command:</code> parameter makes the manager testable with a fake crontab script backed by a tmpfile, with no system crontab involvement.</p>
 <h3 id="install"><code>#install</code><a class="headerlink" href="#install" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="n">cron_lines</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="n">cron_lines</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Accepts a single cron line string or an array of cron line strings. Creates <code>@log_base</code> if absent, then replaces the entire <code>aias</code>-managed crontab block by piping the new content to <code>crontab -</code> via <code>Open3</code>.</p>
 <p><strong>Raises</strong> <code>Aias::Error</code> if the <code>crontab</code> command exits non-zero.</p>
 <h3 id="add_job"><code>#add_job</code><a class="headerlink" href="#add_job" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">cron_line</span><span class="p">,</span><span class="w"> </span><span class="n">prompt_id</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">add_job</span><span class="p">(</span><span class="n">cron_line</span><span class="p">,</span><span class="w"> </span><span class="n">prompt_id</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Upserts a single cron entry into the aias-managed block. Any existing entry whose <code>prompt_id</code> matches is removed first; the new <code>cron_line</code> is appended. All other managed entries are left unchanged. Non-aias crontab entries are never touched.</p>
 <p><code>cron_line</code> is a fully-formed cron line as produced by <code>JobBuilder#build</code>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>0 9 * * 1-5 /bin/zsh -l -c &#39;aia standup &gt;&gt; ~/.aia/schedule/logs/standup.log 2&gt;&amp;1&#39;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>0 9 * * 1-5 /bin/zsh -l -c &#39;aia standup &gt;&gt; ~/.aia/schedule/logs/standup.log 2&gt;&amp;1&#39;
 </span></code></pre></div>
 <p>Creates <code>@log_base</code> if absent. <strong>Raises</strong> <code>Aias::Error</code> if the crontab write fails.</p>
 <h3 id="clear_1"><code>#clear</code><a class="headerlink" href="#clear_1" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">clear</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">clear</span>
 </span></code></pre></div>
 <p>Removes the <code># BEGIN aias</code> … <code># END aias</code> block from the crontab and rewrites it via <code>crontab -</code>. Non-aias entries are untouched.</p>
 <h3 id="dry_run_1"><code>#dry_run</code><a class="headerlink" href="#dry_run_1" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">manager</span><span class="o">.</span><span class="n">dry_run</span><span class="p">(</span><span class="n">cron_lines</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">manager</span><span class="o">.</span><span class="n">dry_run</span><span class="p">(</span><span class="n">cron_lines</span><span class="p">)</span><span class="w">  </span><span class="c1"># =&gt; String</span>
 </span></code></pre></div>
 <p>Returns the cron lines that would be installed joined by newlines, without making any system calls or writing to the crontab.</p>
 <h3 id="installed_jobs"><code>#installed_jobs</code><a class="headerlink" href="#installed_jobs" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">manager</span><span class="o">.</span><span class="n">installed_jobs</span>
-</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="c1"># =&gt; [</span>
-</span><span id="__span-29-3"><a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="c1">#      { prompt_id: &quot;daily_digest&quot;, cron_expr: &quot;0 8 * * *&quot;, log_path: &quot;/...&quot; },</span>
-</span><span id="__span-29-4"><a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="c1">#      { prompt_id: &quot;reports/weekly&quot;, cron_expr: &quot;0 9 * * 1&quot;, log_path: &quot;/...&quot; }</span>
-</span><span id="__span-29-5"><a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="c1">#    ]</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">jobs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">manager</span><span class="o">.</span><span class="n">installed_jobs</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="c1"># =&gt; [</span>
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="c1">#      { prompt_id: &quot;daily_digest&quot;, cron_expr: &quot;0 8 * * *&quot;, log_path: &quot;/...&quot; },</span>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="c1">#      { prompt_id: &quot;reports/weekly&quot;, cron_expr: &quot;0 9 * * 1&quot;, log_path: &quot;/...&quot; }</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="c1">#    ]</span>
 </span></code></pre></div>
 <p>Reads the current crontab and parses the <code>aias</code>-managed block. Returns an empty array when no block is installed.</p>
 <h3 id="current_block"><code>#current_block</code><a class="headerlink" href="#current_block" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">manager</span><span class="o">.</span><span class="n">current_block</span><span class="w">  </span><span class="c1"># =&gt; String</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">manager</span><span class="o">.</span><span class="n">current_block</span><span class="w">  </span><span class="c1"># =&gt; String</span>
 </span></code></pre></div>
 <p>Returns the raw text between the <code># BEGIN aias</code> and <code># END aias</code> marker lines (markers excluded). Returns <code>""</code> when no block exists.</p>
 <h3 id="ensure_log_directories"><code>#ensure_log_directories</code><a class="headerlink" href="#ensure_log_directories" title="Permanent link">&para;</a></h3>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">ensure_log_directories</span><span class="p">(</span><span class="o">[</span><span class="s2">&quot;daily_digest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reports/weekly&quot;</span><span class="o">]</span><span class="p">)</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">manager</span><span class="o">.</span><span class="n">ensure_log_directories</span><span class="p">(</span><span class="o">[</span><span class="s2">&quot;daily_digest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reports/weekly&quot;</span><span class="o">]</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Creates the log subdirectory structure under <code>@log_base</code> for each prompt ID. Called by <code>CLI#update</code> before installing.</p>
 <hr />
 <h2 id="aiaserror"><code>Aias::Error</code><a class="headerlink" href="#aiaserror" title="Permanent link">&para;</a></h2>
-<div class="language-ruby highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Aias</span><span class="o">::</span><span class="no">Error</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">StandardError</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+<div class="language-ruby highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Aias</span><span class="o">::</span><span class="no">Error</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="no">StandardError</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
 </span></code></pre></div>
 <p>Raised for unrecoverable errors: missing prompts directory, crontab write failure. Caught by <code>CLI</code> which prints the message and exits 1.</p>
 
