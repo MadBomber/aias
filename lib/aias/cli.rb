@@ -28,7 +28,7 @@ module Aias
     # help — appends crontab reference when listing all commands
     # ---------------------------------------------------------------------------
 
-    def help(command = nil, subcommand: false)
+    def help(command = nil, subcommand = false)
       super
       return if command
 
