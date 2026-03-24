@@ -68,12 +68,12 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_sources_env_file
     line = builder.build(build_result)
-    assert_match "source #{ENV_FILE} &&", line
+    assert_match %(source "#{ENV_FILE}" &&), line
   end
 
   def test_build_env_file_appears_before_aia_binary
     line = builder.build(build_result)
-    assert line.index("source #{ENV_FILE}") < line.index(AIA_PATH),
+    assert line.index(%(source "#{ENV_FILE}")) < line.index(AIA_PATH),
       "source env.sh must appear before the aia binary"
   end
 
@@ -97,12 +97,12 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_includes_config_flag
     line = builder.build(build_result)
-    assert_match "--config #{CFG_FILE}", line
+    assert_match %(--config "#{CFG_FILE}"), line
   end
 
   def test_build_config_flag_appears_before_prompt_id
     line = builder.build(build_result(prompt_id: "daily_digest"))
-    assert line.index("--config #{CFG_FILE}") < line.index("daily_digest"),
+    assert line.index(%(--config "#{CFG_FILE}")) < line.index("daily_digest"),
       "--config must appear before the prompt ID"
   end
 
@@ -131,7 +131,7 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_with_prompts_dir_includes_flag
     line = builder.build(build_result, prompts_dir: "/tmp/my_prompts")
-    assert_match "--prompts-dir /tmp/my_prompts", line
+    assert_match '--prompts-dir "/tmp/my_prompts"', line
   end
 
   def test_build_with_prompts_dir_flag_appears_before_prompt_id
@@ -152,7 +152,7 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_expands_relative_prompts_dir_to_absolute_path
     line = builder.build(build_result, prompts_dir: "relative/path")
-    assert_match "--prompts-dir #{File.expand_path('relative/path')}", line
+    assert_match %(--prompts-dir "#{File.expand_path('relative/path')}"), line
   end
 
   # ---------------------------------------------------------------------------
@@ -171,7 +171,7 @@ class TestJobBuilder < Minitest::Test
 
   def test_build_redirects_stdout_and_stderr_to_log
     line = builder.build(build_result(prompt_id: "daily_digest"))
-    assert_match "> #{File.join(LOG_BASE, 'daily_digest.log')} 2>&1", line
+    assert_match %(> "#{File.join(LOG_BASE, 'daily_digest.log')}" 2>&1), line
   end
 
   # ---------------------------------------------------------------------------

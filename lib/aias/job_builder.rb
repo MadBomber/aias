@@ -21,9 +21,9 @@ module Aias
       cron_expr    = resolved_cron(scanner_result.schedule)
       prompt_id    = scanner_result.prompt_id
       log          = log_path_for(prompt_id)
-      prompts_flag = prompts_dir ? " --prompts-dir #{File.expand_path(prompts_dir)}" : ""
-      config_flag  = @config_file ? " --config #{@config_file}" : ""
-      cmd          = "source #{@env_file} && #{@aia_path}#{prompts_flag}#{config_flag} #{prompt_id} > #{log} 2>&1"
+      prompts_flag = prompts_dir ? %( --prompts-dir "#{File.expand_path(prompts_dir)}") : ""
+      config_flag  = @config_file ? %( --config "#{@config_file}") : ""
+      cmd          = %(source "#{@env_file}" && #{@aia_path}#{prompts_flag}#{config_flag} #{prompt_id} > "#{log}" 2>&1)
       "#{cron_expr} #{shell_binary} -c '#{cmd}'"
     end
 

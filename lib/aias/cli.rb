@@ -46,7 +46,11 @@ module Aias
 
     desc "add PATH", "Add (or replace) a single scheduled prompt in the crontab"
     def add(path)
-      absolute    = File.expand_path(path)
+      absolute = File.expand_path(path)
+      unless File.file?(absolute) && absolute.end_with?(".md")
+        say_error "aias [error] '#{path}' must be an existing .md file"
+        exit(1)
+      end
       prompts_dir = effective_prompts_dir_for(absolute)
       result      = PromptScanner.new(prompts_dir: prompts_dir).scan_one(absolute)
       vr          = validator.validate(result)

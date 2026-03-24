@@ -92,7 +92,7 @@ class TestCli < Minitest::Test
     cli.instance_variable_set(:@builder,  Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path))
     cli.instance_variable_set(:@manager,  mgr)
     capture_io { cli.update }
-    assert_match "--prompts-dir #{File.expand_path(@prompts_dir)}", mgr.current_block,
+    assert_match %(--prompts-dir "#{File.expand_path(@prompts_dir)}"), mgr.current_block,
       "Generated crontab entry must include --prompts-dir flag"
     refute_match "--config", mgr.current_block
   end
