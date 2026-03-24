@@ -9,6 +9,7 @@ require_relative "aias/version"
 
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect("cli" => "CLI")
+loader.ignore("#{__dir__}/aias/cli")
 loader.setup
 
 module Aias
