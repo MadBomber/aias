@@ -71,10 +71,13 @@ module Aias
       end
     end
 
-    # Runs grep -rl via Open3 to avoid shell injection.
-    # Returns [] when nothing matches (grep exits non-zero with no results).
+    # Runs grep via Open3 to avoid shell injection.
+    # --include=*.md limits matches to prompt files; -m 1 stops after the first
+    # match per file (presence is all we need). Returns [] when nothing matches.
     def candidate_files
-      out, _err, _status = Open3.capture3("grep", "-rl", "schedule:", @prompts_dir)
+      out, _err, _status = Open3.capture3(
+        "grep", "-rl", "--include=*.md", "-m", "1", "schedule:", @prompts_dir
+      )
       out.lines.map(&:chomp).reject(&:empty?)
     end
 

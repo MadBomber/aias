@@ -88,9 +88,9 @@ module Aias
     # install
     # ---------------------------------------------------------------------------
 
-    AIA_CONFIG_SRC   = File.expand_path("~/.config/aia/aia.yml")
-    AIA_SCHEDULE_DIR = File.expand_path("~/.config/aia/schedule")
-    AIA_SCHEDULE_CFG = File.expand_path("~/.config/aia/schedule/aia.yml")
+    AIA_CONFIG_SRC   = Paths::AIA_CONFIG
+    AIA_SCHEDULE_DIR = Paths::SCHEDULE_DIR
+    AIA_SCHEDULE_CFG = Paths::SCHEDULE_CFG
 
     map "ins" => :install
     desc "install [PATTERN...]", "Capture PATH, API keys, and env vars into ~/.config/aia/schedule/env.sh"
@@ -118,9 +118,9 @@ module Aias
 
       env_file.install(env_vars)
       installed = env_vars.keys.sort
-      say "aias: installed #{installed.join(', ')} into #{EnvFile::PATH}"
+      say "aias: installed #{installed.join(', ')} into #{Paths::SCHEDULE_ENV}"
 
-      FileUtils.mkdir_p(AIA_SCHEDULE_DIR)
+      FileUtils.mkdir_p(AIA_SCHEDULE_DIR, mode: 0o700)
 
       unless File.exist?(AIA_SCHEDULE_CFG)
         if File.exist?(AIA_CONFIG_SRC)
@@ -134,7 +134,12 @@ module Aias
         say "Prompt frontmatter overrides any setting in that file."
       end
 
-      inject_prompts_dir(File.expand_path(ENV["AIA_PROMPTS__DIR"])) if ENV["AIA_PROMPTS__DIR"]
+      if ENV["AIA_PROMPTS__DIR"]
+        dir = File.expand_path(ENV["AIA_PROMPTS__DIR"])
+        if ScheduleConfig.new.set_prompts_dir(dir)
+          say "aias: set prompts.dir=#{dir} in #{AIA_SCHEDULE_CFG}"
+        end
+      end
     rescue Aias::Error => e
       say_error "aias [error] #{e.message}"
       exit(1)
@@ -148,7 +153,7 @@ module Aias
     desc "uninstall", "Remove managed env block from ~/.config/aia/schedule/env.sh (schedule config preserved)"
     def uninstall
       env_file.uninstall
-      say "aias: env vars removed from #{EnvFile::PATH}"
+      say "aias: env vars removed from #{Paths::SCHEDULE_ENV}"
       say "      #{AIA_SCHEDULE_DIR} is unchanged"
     rescue Aias::Error => e
       say_error "aias [error] #{e.message}"
@@ -372,25 +377,6 @@ module Aias
     # AIA_PROMPTS_DIR points elsewhere; the prompt ID becomes just "standup"
     # and the generated cron line embeds --prompts-dir pointing at the file's
     # parent.
-    # Ensures the schedule config has prompts.dir set to the given directory.
-    # This is necessary because --config-file triggers reset_to_defaults in AIA,
-    # which wipes AIA_PROMPTS__DIR from the env var source. Having prompts.dir
-    # in the config file itself ensures prompts are found even after that reset.
-    # Silently skips if the schedule config does not exist or cannot be parsed.
-    def inject_prompts_dir(dir)
-      return unless File.exist?(AIA_SCHEDULE_CFG)
-
-      config = YAML.safe_load_file(AIA_SCHEDULE_CFG) || {}
-      return if config.dig("prompts", "dir") == dir
-
-      config["prompts"] ||= {}
-      config["prompts"]["dir"] = dir
-      File.write(AIA_SCHEDULE_CFG, config.to_yaml)
-      say "aias: set prompts.dir=#{dir} in #{AIA_SCHEDULE_CFG}"
-    rescue StandardError => e
-      say "aias: could not update prompts.dir in #{AIA_SCHEDULE_CFG}: #{e.message}"
-    end
-
     def effective_prompts_dir_for(absolute)
       return File.expand_path(options[:prompts_dir]) if options[:prompts_dir]
 

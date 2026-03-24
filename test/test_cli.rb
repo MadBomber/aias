@@ -569,7 +569,7 @@ class TestCli < Minitest::Test
     Aias::CLI.new.tap do |cli|
       cli.instance_variable_set(:@scanner,   Aias::PromptScanner.new(prompts_dir: @prompts_dir))
       cli.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path, config_file: Aias::CLI::AIA_SCHEDULE_CFG))
+      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path, config_file: Aias::Paths::SCHEDULE_CFG))
       cli.instance_variable_set(:@manager,   mgr)
       cli.instance_variable_set(:@env_file,  new_env_file)
     end
@@ -580,7 +580,7 @@ class TestCli < Minitest::Test
     Aias::CLI.new.tap do |cli|
       cli.instance_variable_set(:@scanner,   Aias::PromptScanner.new(prompts_dir: "/nonexistent_dir_xyz_aias_test"))
       cli.instance_variable_set(:@validator, Aias::Validator.new(binary_to_check: "ruby"))
-      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path, config_file: Aias::CLI::AIA_SCHEDULE_CFG))
+      cli.instance_variable_set(:@builder,   Aias::JobBuilder.new(shell: "/bin/bash", aia_path: "/usr/local/bin/aia", env_file: @env_file_path, config_file: Aias::Paths::SCHEDULE_CFG))
       cli.instance_variable_set(:@manager,   new_manager)
       cli.instance_variable_set(:@env_file,  new_env_file)
     end
@@ -654,7 +654,7 @@ class TestCli < Minitest::Test
       #!/bin/bash
       STATE="#{state_file}"
       if [ "$1" = "-l" ]; then
-        if [ -f "$STATE" ]; then cat "$STATE"; exit 0; else exit 1; fi
+        if [ -f "$STATE" ]; then cat "$STATE"; exit 0; else echo "no crontab for $USER" >&2; exit 1; fi
       elif [ "$1" = "-" ]; then
         cat > "$STATE"; exit 0
       elif [ "$1" = "-r" ]; then

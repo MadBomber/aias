@@ -373,7 +373,7 @@ class TestCrontabManager < Minitest::Test
       #!/bin/bash
       STATE="#{state_file}"
       if [ "$1" = "-l" ]; then
-        if [ -f "$STATE" ]; then cat "$STATE"; exit 0; else exit 1; fi
+        if [ -f "$STATE" ]; then cat "$STATE"; exit 0; else echo "no crontab for $USER" >&2; exit 1; fi
       elif [ "$1" = "-" ]; then
         cat > "$STATE"; exit 0
       elif [ "$1" = "-r" ]; then

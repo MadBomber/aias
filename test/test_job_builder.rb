@@ -3,7 +3,7 @@
 require "test_helper"
 
 class TestJobBuilder < Minitest::Test
-  LOG_BASE  = File.expand_path("~/.config/aia/schedule/logs")
+  LOG_BASE  = Aias::Paths::SCHEDULE_LOG
   AIA_PATH  = "/usr/local/bin/aia"
   ENV_FILE  = "/fake/aias/env.sh"
   CFG_FILE  = "/fake/aias/schedule/aia.yml"

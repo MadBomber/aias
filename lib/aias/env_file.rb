@@ -11,30 +11,28 @@ module Aias
   # AIA_PROMPTS__DIR, etc.) without relying on crontab env vars or a login
   # shell that would reset PATH via path_helper.
   class EnvFile
-    PATH = File.expand_path("~/.config/aia/schedule/env.sh")
-
+    include BlockParser
     BLOCK_OPEN  = "# BEGIN aias-env"
     BLOCK_CLOSE = "# END aias-env"
 
-    def initialize(path: PATH)
+    def initialize(path: Paths::SCHEDULE_ENV)
       @path = path
     end
 
     # Writes env_vars into the managed block (merge — new values win on conflict).
     # env_vars is a Hash of { "KEY" => "value" }.
-    # Chmod 0600 is applied so API keys are not world-readable.
+    # Chmod 0600 is applied by write so API keys are never world-readable.
     def install(env_vars)
-      FileUtils.mkdir_p(File.dirname(@path))
+      FileUtils.mkdir_p(File.dirname(@path), mode: 0o700)
       merged = parse_block(current_block).merge(env_vars)
       lines  = merged.map { |k, v| "export #{k}=\"#{v}\"" }
       write(replace_block(read, lines))
-      FileUtils.chmod(0o600, @path)
     end
 
     # Removes the managed block from the file.
     # Deletes the file entirely when no other content remains.
     def uninstall
-      content = strip_block(read)
+      content = strip_block(read, BLOCK_OPEN, BLOCK_CLOSE)
       if content.strip.empty?
         File.delete(@path) if File.exist?(@path)
       else
@@ -45,7 +43,7 @@ module Aias
     # Returns the raw content of the managed block (markers excluded).
     # Returns an empty string when no block exists.
     def current_block
-      extract_block(read)
+      extract_block(read, BLOCK_OPEN, BLOCK_CLOSE)
     end
 
     private
@@ -56,40 +54,11 @@ module Aias
 
     def write(content)
       File.write(@path, content)
-    end
-
-    def extract_block(content)
-      in_block = false
-      lines    = []
-      content.each_line do |line|
-        if line.chomp == BLOCK_OPEN
-          in_block = true
-        elsif line.chomp == BLOCK_CLOSE
-          in_block = false
-        elsif in_block
-          lines << line
-        end
-      end
-      lines.join
-    end
-
-    def strip_block(content)
-      in_block = false
-      lines    = content.each_line.reject do |line|
-        if line.chomp == BLOCK_OPEN
-          in_block = true
-        elsif line.chomp == BLOCK_CLOSE
-          in_block = false
-        else
-          next in_block
-        end
-        true
-      end
-      lines.join
+      FileUtils.chmod(0o600, @path)
     end
 
     def replace_block(content, export_lines)
-      cleaned   = strip_block(content)
+      cleaned   = strip_block(content, BLOCK_OPEN, BLOCK_CLOSE)
       new_block = ([BLOCK_OPEN] + export_lines + [BLOCK_CLOSE]).join("\n") + "\n"
       cleaned.empty? ? new_block : new_block + "\n" + cleaned.lstrip
     end

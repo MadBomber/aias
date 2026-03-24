@@ -2,12 +2,10 @@
 
 module Aias
   class JobBuilder
-    LOG_BASE = File.expand_path("~/.config/aia/schedule/logs")
-
     def initialize(shell: ENV.fetch("SHELL", "/bin/bash"), aia_path: nil, env_file: nil, config_file: nil)
       @shell       = shell
       @aia_path    = aia_path || 'aia'
-      @env_file    = env_file || EnvFile::PATH
+      @env_file    = env_file || Paths::SCHEDULE_ENV
       @config_file = config_file
     end
 
@@ -31,7 +29,7 @@ module Aias
     # Mirrors the subdirectory structure of the prompt_id.
     # e.g. "reports/weekly" → "~/.config/aia/schedule/logs/reports/weekly.log"
     def log_path_for(prompt_id)
-      File.join(LOG_BASE, "#{prompt_id}.log")
+      File.join(Paths::SCHEDULE_LOG, "#{prompt_id}.log")
     end
 
     private
@@ -54,15 +52,5 @@ module Aias
       @shell.strip
     end
 
-    # Resolves the full path to the aia binary by running `which aia` in the
-    # current process environment. This is called at build time (when the user
-    # runs `aias add` or `aias update`), so aia is always in PATH at that point.
-    # Falls back to bare "aia" if resolution fails.
-    def detect_aia_path
-      path = `which aia 2>/dev/null`.strip
-      path.empty? ? "aia" : path
-    rescue StandardError
-      "aia"
-    end
   end
 end

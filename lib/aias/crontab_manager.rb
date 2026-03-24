@@ -5,8 +5,8 @@ require "open3"
 
 module Aias
   class CrontabManager
+    include BlockParser
     IDENTIFIER = "aias"
-    LOG_BASE   = File.expand_path("~/.config/aia/schedule/logs")
 
     BLOCK_OPEN  = "# BEGIN aias"
     BLOCK_CLOSE = "# END aias"
@@ -18,7 +18,7 @@ module Aias
     # matched for backward compatibility when reading older installed entries.
     ENTRY_RE = /^(?<cron>[^\/\n]+)\s+\/\S+\s+(?:-l\s+)?-c\s+['"](?:source\s+\S+\s+&&\s+)?(?:\w+=\S+\s+)*(?:[^\s'"]*\/)?aia\s+(?:--prompts-dir\s+\S+\s+)?(?:--config(?:-file)?\s+\S+\s+)?(?<prompt_id>(?!--)\S+)(?:\s+--prompts-dir\s+\S+)?(?:\s+--config(?:-file)?\s+\S+)?\s+>>?\s+(?<log>\S+)\s+2>&1/
 
-    def initialize(crontab_command: "crontab", log_base: LOG_BASE)
+    def initialize(crontab_command: "crontab", log_base: Paths::SCHEDULE_LOG)
       @crontab_command = crontab_command
       @log_base        = log_base
     end
@@ -27,7 +27,7 @@ module Aias
     # previously installed aias block. Creates the log base directory first.
     # Raises Aias::Error if the crontab write fails.
     def install(cron_lines)
-      FileUtils.mkdir_p(@log_base)
+      FileUtils.mkdir_p(@log_base, mode: 0o700)
       updated = replace_block(read_crontab, Array(cron_lines))
       write_crontab(updated)
     end
@@ -73,9 +73,9 @@ module Aias
     # new line is appended. All other managed entries are left untouched.
     # Raises Aias::Error if the crontab write fails.
     def add_job(cron_line, prompt_id)
-      FileUtils.mkdir_p(@log_base)
+      FileUtils.mkdir_p(@log_base, mode: 0o700)
       current  = read_crontab
-      existing = current_block.each_line.map(&:chomp).reject(&:empty?)
+      existing = extract_block(current, BLOCK_OPEN, BLOCK_CLOSE).each_line.map(&:chomp).reject(&:empty?)
       updated  = existing.reject { |l| ENTRY_RE.match(l)&.[](:prompt_id) == prompt_id }
       updated << cron_line
       write_crontab(replace_block(current, updated))
@@ -87,7 +87,7 @@ module Aias
     # if the crontab write fails.
     def remove_job(prompt_id)
       current  = read_crontab
-      existing = current_block.each_line.map(&:chomp).reject(&:empty?)
+      existing = extract_block(current, BLOCK_OPEN, BLOCK_CLOSE).each_line.map(&:chomp).reject(&:empty?)
       updated  = existing.reject { |l| ENTRY_RE.match(l)&.[](:prompt_id) == prompt_id }
       raise Aias::Error, "'#{prompt_id}' is not currently installed" if updated.size == existing.size
 
@@ -98,16 +98,20 @@ module Aias
     # Called by CLI before install to ensure log dirs exist.
     def ensure_log_directories(prompt_ids)
       prompt_ids.each do |id|
-        FileUtils.mkdir_p(File.dirname(File.join(@log_base, "#{id}.log")))
+        FileUtils.mkdir_p(File.dirname(File.join(@log_base, "#{id}.log")), mode: 0o700)
       end
     end
 
     private
 
     # Reads the current crontab. Returns '' when no crontab exists.
+    # Raises Aias::Error for any other non-zero exit to prevent silently
+    # overwriting a crontab that could not be read.
     def read_crontab
-      out, _err, status = Open3.capture3(@crontab_command, "-l")
-      status.success? ? out : ""
+      out, err, status = Open3.capture3(@crontab_command, "-l")
+      return out if status.success?
+      return "" if err.include?("no crontab for")
+      raise Aias::Error, "crontab -l failed: #{err.strip}"
     end
 
     # Writes content to the crontab via stdin.
@@ -118,38 +122,6 @@ module Aias
         stdin.close
         raise Aias::Error, "failed to write crontab" unless thr.value.success?
       end
-    end
-
-    # Extracts lines between open_marker and close_marker (exclusive).
-    def extract_block(content, open_marker, close_marker)
-      in_block = false
-      lines    = []
-      content.each_line do |line|
-        if line.chomp == open_marker
-          in_block = true
-        elsif line.chomp == close_marker
-          in_block = false
-        elsif in_block
-          lines << line
-        end
-      end
-      lines.join
-    end
-
-    # Generic block remover — strips lines from open_marker through close_marker.
-    def strip_block(content, open_marker, close_marker)
-      in_block = false
-      lines    = content.each_line.reject do |line|
-        if line.chomp == open_marker
-          in_block = true
-        elsif line.chomp == close_marker
-          in_block = false
-        else
-          next in_block
-        end
-        true
-      end
-      lines.join
     end
 
     # Removes the aias jobs block from content, leaving other lines intact.
