@@ -2,9 +2,23 @@
 
 Get a prompt running on a schedule in under five minutes.
 
-## Step 1 — Add a `schedule:` Key to a Prompt
+## Step 1 — Capture Your Environment
 
-Open any AIA prompt file (`.md` in your `$AIA_PROMPTS_DIR`) and add a `schedule:` key to its YAML frontmatter:
+Run this once after installing `aias`:
+
+```bash
+aias install
+```
+
+This snapshots your current shell's `PATH`, API keys, and `AIA_*` variables into `~/.config/aia/schedule/env.sh`. Every cron job sources that file so `aia` and its dependencies are available at run time.
+
+Re-run `aias install` whenever you rotate an API key, install a new MCP server binary, or change your Ruby version.
+
+See [Cron Environment](../guides/cron-environment.md) for full details.
+
+## Step 2 — Add a `schedule:` Key to a Prompt
+
+Open any AIA prompt file (`.md` in your prompts directory) and add a `schedule:` key to its YAML frontmatter:
 
 ```yaml
 ---
@@ -15,9 +29,9 @@ Summarize what happened overnight in the Ruby and AI ecosystems.
 Keep the summary under 300 words.
 ```
 
-The `schedule:` value accepts either a raw cron expression or a whenever DSL string. See [Schedule Format](../guides/scheduling-prompts.md) for the full syntax.
+The `schedule:` value accepts either a raw cron expression or a natural-language string. See [Scheduling Prompts](../guides/scheduling-prompts.md) for the full syntax.
 
-## Step 2 — Preview the Crontab Entry
+## Step 3 — Preview the Crontab Entry
 
 Before writing anything, see what `aias` would install:
 
@@ -28,22 +42,25 @@ aias dry-run
 Example output:
 
 ```
-0 8 * * * /bin/zsh -l -c 'aia daily_digest >> /Users/you/.aia/schedule/logs/daily_digest.log 2>&1'
+0 8 * * * /bin/bash -c 'source ~/.config/aia/schedule/env.sh && \
+  aia --prompts-dir /Users/you/.prompts \
+      --config ~/.config/aia/schedule/aia.yml \
+      daily_digest > ~/.config/aia/schedule/logs/daily_digest.log 2>&1'
 ```
 
-## Step 3 — Install
+## Step 4 — Install
 
 ```bash
 aias update
 ```
 
-`aias` scans every prompt file, validates the scheduled ones, and replaces the entire `aias`-managed block in your crontab. Output shows how many jobs were installed and how many (if any) were skipped:
+`aias` scans every prompt file, validates the scheduled ones, and replaces the entire `aias`-managed block in your crontab:
 
 ```
 aias: installed 1 job(s)
 ```
 
-## Step 4 — Confirm
+## Step 5 — Confirm
 
 ```bash
 aias list
@@ -52,7 +69,7 @@ aias list
 ```
 PROMPT ID                       SCHEDULE         LOG
 ------------------------------  ---------------  -----------------------------------------------
-daily_digest                    0 8 * * *        /Users/you/.aia/schedule/logs/daily_digest.log
+daily_digest                    0 8 * * *        /Users/you/.config/aia/schedule/logs/daily_digest.log
 ```
 
 ```bash
@@ -67,24 +84,21 @@ When everything is in sync:
 OK — crontab is in sync with scheduled prompts
 ```
 
-## Step 5 — Add More Prompts (Optional)
+## Step 6 — Add More Prompts (Optional)
 
 Every `aias update` is a full sync. Add `schedule:` to more prompts, then run `update` again — new prompts are added, removed prompts are cleaned up automatically.
 
-```bash
-# Add more prompts, then:
-aias update
-```
-
 ## What Happens at Runtime
 
-When cron fires the job, it runs:
+When cron fires the job:
 
-```bash
-/bin/zsh -l -c 'aia daily_digest >> ~/.aia/schedule/logs/daily_digest.log 2>&1'
-```
+1. `env.sh` is sourced — PATH, API keys, and AIA variables are set
+2. `aia` is invoked with the prompts directory and schedule config
+3. AIA reads the prompt file, merges its frontmatter over the schedule config
+4. The prompt runs using the model and settings defined in the frontmatter (or the schedule config defaults)
+5. All output is written to `~/.config/aia/schedule/logs/<prompt_id>.log`
 
-The login shell (`-l`) ensures rbenv, PATH, and all your environment variables are loaded. stdout and stderr are both appended to the log file.
+See [Configuration Layering](../guides/configuration-layering.md) for how `env.sh`, the schedule config, and prompt frontmatter combine.
 
 ## Disabling a Prompt
 

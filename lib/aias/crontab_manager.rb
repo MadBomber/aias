@@ -81,6 +81,19 @@ module Aias
       write_crontab(replace_block(current, updated))
     end
 
+    # Removes a single cron job from the aias block by prompt_id.
+    # All other managed entries are left untouched.
+    # Raises Aias::Error if the prompt_id is not currently installed or
+    # if the crontab write fails.
+    def remove_job(prompt_id)
+      current  = read_crontab
+      existing = current_block.each_line.map(&:chomp).reject(&:empty?)
+      updated  = existing.reject { |l| ENTRY_RE.match(l)&.[](:prompt_id) == prompt_id }
+      raise Aias::Error, "'#{prompt_id}' is not currently installed" if updated.size == existing.size
+
+      write_crontab(replace_block(current, updated))
+    end
+
     # Creates subdirectory structure under @log_base for each prompt_id.
     # Called by CLI before install to ensure log dirs exist.
     def ensure_log_directories(prompt_ids)

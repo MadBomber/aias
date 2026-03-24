@@ -14,10 +14,10 @@ Gem::Specification.new do |spec|
     to any prompt's YAML frontmatter and run `aias update` to install the full
     set, or `aias add <path>` to install a single prompt without touching the
     rest. Schedules accept raw cron expressions or natural-language strings
-    ("every weekday at 9am"). Each job runs as a fresh `aia` process under your
-    login shell and appends its output to a per-prompt log under
-    ~/.aia/schedule/logs/. Prompts are self-describing — no separate
-    configuration file is needed.
+    ("every weekday at 9am"). Run `aias install` once to capture your PATH,
+    API keys, and AIA variables into env.sh — every job sources it at runtime.
+    Output is written to a per-prompt log under ~/.config/aia/schedule/logs/.
+    Prompts are self-describing — no separate configuration file is needed.
   DESC
   spec.homepage = "https://github.com/madbomber/aias"
   spec.license = "MIT"

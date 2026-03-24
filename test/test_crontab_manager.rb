@@ -275,6 +275,40 @@ class TestCrontabManager < Minitest::Test
   end
 
   # ---------------------------------------------------------------------------
+  # remove_job — delete a single entry
+  # ---------------------------------------------------------------------------
+
+  def test_remove_job_removes_the_entry
+    new_manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
+    new_manager.remove_job("daily_digest")
+    assert_empty new_manager.installed_jobs
+  end
+
+  def test_remove_job_leaves_other_entries_untouched
+    new_manager.install([
+      build_job_dsl("alpha", "0 8 * * *"),
+      build_job_dsl("beta",  "0 10 * * *")
+    ])
+    new_manager.remove_job("alpha")
+    ids = new_manager.installed_jobs.map { |j| j[:prompt_id] }
+    refute_includes ids, "alpha"
+    assert_includes ids, "beta"
+  end
+
+  def test_remove_job_raises_when_prompt_id_not_installed
+    assert_raises(Aias::Error) { new_manager.remove_job("nonexistent") }
+  end
+
+  def test_remove_job_preserves_non_aias_crontab_entries
+    preset_crontab(mixed_crontab)
+    new_manager.install(build_job_dsl("daily_digest", "0 8 * * *"))
+    new_manager.remove_job("daily_digest")
+    content = File.read(@crontab_state)
+    assert_match "good morning", content
+    assert_match "goodnight", content
+  end
+
+  # ---------------------------------------------------------------------------
   # ensure_log_directories
   # ---------------------------------------------------------------------------
 

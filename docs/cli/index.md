@@ -10,8 +10,10 @@ aias help
 
 | Command | Purpose |
 |---|---|
+| [`aias install [PATTERN...]`](install.md) | Capture PATH, API keys, and env vars into `env.sh`. Run once before scheduling any prompts. |
 | [`aias update`](update.md) | Scan prompts, validate, install all scheduled jobs. Primary command. |
 | [`aias add PATH`](add.md) | Add or replace a single prompt's cron job without touching others. |
+| [`aias remove PROMPT_ID`](remove.md) | Remove a single prompt's cron job. Aliases: `rm`, `delete`. |
 | [`aias check`](check.md) | Diff view: what is scheduled vs what is installed. |
 | [`aias list`](list.md) | Print all currently installed jobs. |
 | [`aias dry-run`](dry-run.md) | Preview `update` output without writing the crontab. |
@@ -19,6 +21,7 @@ aias help
 | [`aias next [N]`](next.md) | Show next scheduled run time for installed jobs. |
 | [`aias last [N]`](last.md) | Show last-run time for installed jobs. |
 | [`aias clear`](clear.md) | Remove all aias-managed crontab entries. |
+| [`aias uninstall`](uninstall.md) | Remove the managed env block from `env.sh`. |
 
 ## Global Option
 

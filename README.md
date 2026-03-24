@@ -1,4 +1,31 @@
-# aias
+# aias - AI Assistant (AIA) Scheduler
+
+> [!INFO]
+> See the [CHANGELOG](CHANGELOG.md) for the latest changes.
+
+<br>
+<table>
+<tr>
+<td width="50%" align="center" valign="top">
+<img src="docs/assets/images/logo.jpg" alt="aias"><br>
+<em>"Schedule. Batch. Execute."</em>
+</td>
+<td width="50%" valign="top">
+<strong>Key Features</strong><br>
+
+- <strong>Natural Language Scheduling</strong> — <code>schedule:</code> frontmatter accepts cron expressions or plain English (<code>"every weekday at 9am"</code>)<br>
+- <strong>Zero Configuration</strong> — No separate config file; prompts describe their own schedule in frontmatter<br>
+- <strong>Reliable Cron Environment</strong> — <code>aias install</code> captures PATH, API keys, and <code>AIA_*</code> vars into <code>env.sh</code> so jobs always run with the right environment<br>
+- <strong>MCP Server Support</strong> — Capture credentials for GitHub, Homebrew, and any MCP server with glob patterns (<code>'GITHUB_*'</code>)<br>
+- <strong>Per-Prompt Overrides</strong> — Frontmatter sets provider, model, flags, and tools per prompt; overrides the shared schedule config<br>
+- <strong>Schedule-Specific Config</strong> — Separate <code>~/.config/aia/schedule/aia.yml</code> isolates scheduled jobs from interactive AIA settings<br>
+- <strong>Single-Prompt Control</strong> — <code>aias add</code> and <code>aias remove</code> manage individual jobs without touching others<br>
+- <strong>Full Sync</strong> — <code>aias update</code> replaces the entire managed crontab block; orphaned entries self-clean<br>
+- <strong>Safe Validation</strong> — Rejects invalid schedules and prompts with un-defaulted parameters before touching the crontab<br>
+- <strong>Rich Inspection</strong> — <code>list</code>, <code>show</code>, <code>check</code>, <code>next</code>, <code>last</code>, and <code>dry-run</code> commands
+</td>
+</tr>
+</table>
 
 Schedule [AIA](https://github.com/madbomber/aia) prompts as cron jobs. Add a `schedule:` key to any prompt's YAML frontmatter — `aias update` does the rest.
 
@@ -20,7 +47,13 @@ gem "aias"
 
 ## Quick Start
 
-**1. Add a schedule to any prompt's frontmatter:**
+**1. Capture your environment (once):**
+
+```bash
+aias install
+```
+
+**2. Add a schedule to any prompt's frontmatter:**
 
 ```yaml
 ---
@@ -30,25 +63,57 @@ description: Morning briefing
 Summarize what happened overnight in the Ruby and AI ecosystems.
 ```
 
-**2. Validate and install:**
+**3. Validate and install:**
 
 ```bash
 aias update
 ```
 
-**3. Verify:**
+**4. Verify:**
 
 ```bash
 aias list
 aias check
 ```
 
+## Environment Setup
+
+Cron runs with a minimal environment — no Ruby version manager, no API keys, no user-defined variables. `aias install` solves this by capturing your current shell environment into `~/.config/aia/schedule/env.sh`, which is sourced before every scheduled job.
+
+### What gets captured automatically
+
+| Variable group | Examples | Why |
+|---|---|---|
+| `PATH` | rbenv shims, Homebrew, gem bin dirs | `aia` and MCP server binaries must be findable |
+| `*_API_KEY` | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc. | LLM provider authentication |
+| `AIA_*` | `AIA_PROMPTS__DIR`, `AIA_MODEL`, etc. | AIA runtime configuration |
+| `LANG`, `LC_ALL` | `en_US.UTF-8` | Ruby UTF-8 string handling |
+
+### MCP server credentials
+
+If your scheduled prompts use MCP servers, those servers may need their own credentials — auth tokens, configuration paths, or other variables that are not covered by the defaults. Pass glob patterns to `aias install` to capture them:
+
+```bash
+# GitHub MCP server (needs a personal access token)
+aias install 'GITHUB_*'
+
+# Homebrew MCP server
+aias install 'HOMEBREW_*'
+
+# Multiple patterns at once
+aias install 'GITHUB_*' 'HOMEBREW_*'
+```
+
+Check the documentation for each MCP server you use to identify the variables it reads, then add the corresponding pattern. Re-run `aias install` any time you add a new API key, install a new MCP server binary, or change your Ruby version.
+
 ## CLI Commands
 
 | Command | Description |
 |---|---|
+| `aias install [PATTERN...]` | Capture PATH, API keys, and env vars into `env.sh`. Run once before scheduling. |
 | `aias update` | Scan prompts, regenerate all crontab entries, install. Primary command. |
 | `aias add PATH` | Add or replace a single prompt's cron job without touching others. |
+| `aias remove PROMPT_ID` | Remove a single prompt's cron job. Aliases: `rm`, `delete`. |
 | `aias check` | Diff view: prompts with `schedule:` vs what is installed. |
 | `aias list` | Report all installed jobs: prompt ID, schedule, log file. |
 | `aias dry-run` | Show what `update` would write without touching the crontab. |
@@ -56,6 +121,7 @@ aias check
 | `aias next [N]` | Show next scheduled run time for installed jobs (default 5). |
 | `aias last [N]` | Show last-run time for installed jobs (default 5). |
 | `aias clear` | Remove all aias-managed crontab entries. Non-aias entries untouched. |
+| `aias uninstall` | Remove the managed env block from `env.sh`. |
 
 ### `aias add PATH`
 
@@ -83,34 +149,42 @@ aias -p ~/work/prompts check
 
 ## Schedule Format
 
-The `schedule:` value accepts either a raw cron expression or a whenever DSL string:
+The `schedule:` value accepts a standard cron expression, a `@`-shorthand keyword, or a natural language string. Natural language parsing is provided by the [fugit](https://github.com/floraison/fugit) gem.
 
 ```yaml
-schedule: "0 8 * * *"               # cron expression
-schedule: "@daily"                   # cron keyword
-schedule: "every 1.day at 8:00am"   # whenever DSL
-schedule: "every :monday at 9:00am"  # whenever DSL
-schedule: "every 6.hours"            # whenever DSL
+schedule: "0 8 * * *"                    # cron expression
+schedule: "@daily"                        # @ shorthand
+schedule: "every day at 8am"             # natural language
+schedule: "every weekday at 9am"         # natural language
+schedule: "every monday at 9am"          # natural language
+schedule: "every monday through friday at 9am"  # natural language
+schedule: "every 6 hours"               # natural language
+schedule: "every 30 minutes"            # natural language
+schedule: "every 1st of the month at midnight"  # natural language
+schedule: "every day at 9am in America/New_York"  # with timezone
 ```
 
-Remove the `schedule:` line to disable scheduling without deleting the prompt.
+Natural language strings are resolved to cron expressions at install time. Use `aias dry-run` to preview the resolved expression before installing. See [Scheduling Prompts](docs/guides/scheduling-prompts.md) for the full reference including all supported patterns, limitations, and a quick-reference table.
+
+Once a prompt has been scheduled and resides in the crontab you **cannot** remove it just by deleting or commenting out the `schedule:` line. Run `aias update` (full sync) or `aias remove PROMPT_ID` to remove it.
+
 
 ## Validation
 
 Before installing, `aias` validates each scheduled prompt:
 
-- **Schedule syntax** — cron expression or whenever DSL must be parseable
+- **Schedule syntax** — cron expression or natural language must be parseable
 - **Parameter completeness** — all `parameters:` keys must have default values (interactive input is impossible in cron)
-- **AIA binary** — `aia` must be locatable in the login-shell PATH **or** in a known version-manager shim directory (`~/.rbenv/shims`, `~/.rbenv/bin`, `~/.rvm/bin`, `~/.asdf/shims`, `/usr/local/bin`, `/usr/bin`, `/opt/homebrew/bin`)
+- **AIA binary** — `aia` must be locatable in PATH or a known version-manager shim directory (`~/.rbenv/shims`, `~/.rvm/bin`, `~/.asdf/shims`, `/opt/homebrew/bin`)
 
 Invalid prompts are warned and excluded. The remaining valid prompts are installed.
 
 ## Logging
 
-Each job logs to `~/.aia/schedule/logs/<prompt_id>.log`. stdout and stderr are combined and always appended.
+Each job logs to `~/.config/aia/schedule/logs/<prompt_id>.log`. stdout and stderr are combined and overwrite the log on each run.
 
 ```
-~/.aia/schedule/logs/
+~/.config/aia/schedule/logs/
   daily_digest.log
   reports/
     weekly.log
@@ -124,6 +198,7 @@ Thor-based CLI. All commands are public instance methods.
 
 ```ruby
 cli = Aias::CLI.new
+cli.install      # capture environment into env.sh
 cli.update       # scan, validate, install
 cli.add(path)    # add/replace a single prompt by file path
 cli.check        # diff view
@@ -133,6 +208,7 @@ cli.show(id)     # show single job
 cli.upcoming     # show next scheduled run time (aliased as `next`)
 cli.last_run     # show last-run time from log mtime (aliased as `last`)
 cli.clear        # remove all aias-managed entries
+cli.uninstall    # remove managed env block from env.sh
 ```
 
 Collaborators are injected via lazy accessors; set instance variables before calling a command to override defaults:
@@ -171,21 +247,18 @@ vr.errors   # => Array<String>
 
 ```ruby
 builder = Aias::JobBuilder.new(shell: ENV["SHELL"])
-builder = Aias::JobBuilder.new(shell: ENV["SHELL"], prompts_dir: "/path/to/prompts")
-cron    = builder.build(scanner_result)   # => String (raw cron line)
-log     = builder.log_path_for(prompt_id) # => String (absolute path)
+cron    = builder.build(scanner_result, prompts_dir: "/path")  # => String (raw cron line)
+log     = builder.log_path_for(prompt_id)                      # => String (absolute path)
 ```
-
-When `prompts_dir:` is provided, every generated `aia` invocation includes `--prompts-dir DIR` so the cron job targets the same prompts directory that `aias` was run with.
 
 ### `Aias::CrontabManager`
 
 ```ruby
-manager = Aias::CrontabManager.new(crontab_command: "crontab", log_base: "~/.aia/schedule/logs")
-manager.install(dsl_string)                  # replace entire aias block
+manager = Aias::CrontabManager.new
+manager.install(cron_lines)                  # replace entire aias block
 manager.add_job(cron_line, prompt_id)        # upsert one entry; others untouched
 manager.clear                                # remove all aias-managed entries
-manager.dry_run(dsl_string)                  # => String (cron output, no write)
+manager.dry_run(cron_lines)                  # => String (output, no write)
 manager.installed_jobs                       # => Array<Hash> (:prompt_id, :cron_expr, :log_path)
 manager.current_block                        # => String (raw aias crontab block)
 manager.ensure_log_directories(ids)          # create log subdirs for prompt IDs
@@ -206,10 +279,11 @@ AIA prompt files (YAML frontmatter)
   JobBuilder.build            prompt ID + schedule → raw cron line
          │
          ▼
-  CrontabManager.install      whenever → crontab block replace
+  CrontabManager.install      crontab block replace
          │
          ▼
-  OS cron daemon              runs: aia <prompt_id> >> log 2>&1
+  OS cron daemon
+  source env.sh && aia --prompts-dir ... --config ... prompt_id > log 2>&1
 ```
 
 ## Development
