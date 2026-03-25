@@ -1,5 +1,7 @@
 # Cron Environment
 
+> New to cron? See [Understanding Cron and Crontab](understanding-cron.md) first.
+
 Cron runs processes in a nearly empty environment: no `PATH` beyond `/usr/bin:/bin`, no Ruby version manager, no user-defined variables. Without intervention, `aia` would not be found and API keys would not be set, so every job would fail silently.
 
 ## How aias Solves This
