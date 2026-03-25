@@ -1208,6 +1208,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1269,23 +1280,23 @@
 <h1 id="aias">aias<a class="headerlink" href="#aias" title="Permanent link">&para;</a></h1>
 <table>
 <tr>
-<td width="50%" align="center" valign="top">
+<td width="40%" align="center" valign="top">
 <img src="assets/images/logo.jpg" alt="aias"><br>
 <em>"Schedule. Batch. Execute."</em>
 </td>
-<td width="50%" valign="top">
+<td width="60%" valign="top">
 <h2>Key Features</h2>
 <ul>
-<li><strong>Natural Language Scheduling</strong> — <code>schedule:</code> frontmatter accepts cron expressions or plain English (<code>"every weekday at 9am"</code>)</li>
-<li><strong>Zero Configuration</strong> — No separate config file; prompts describe their own schedule in frontmatter</li>
-<li><strong>Reliable Cron Environment</strong> — <code>aias install</code> captures PATH, API keys, and <code>AIA_*</code> vars into <code>env.sh</code> so jobs always run with the right environment</li>
-<li><strong>MCP Server Support</strong> — Capture credentials for GitHub, Homebrew, and any MCP server with glob patterns (<code>'GITHUB_*'</code>)</li>
-<li><strong>Per-Prompt Overrides</strong> — Frontmatter sets provider, model, flags, and tools per prompt; overrides the shared schedule config</li>
-<li><strong>Schedule-Specific Config</strong> — Separate <code>~/.config/aia/schedule/aia.yml</code> isolates scheduled jobs from interactive AIA settings</li>
-<li><strong>Single-Prompt Control</strong> — <code>aias add</code> and <code>aias remove</code> manage individual jobs without touching others</li>
-<li><strong>Full Sync</strong> — <code>aias update</code> replaces the entire managed crontab block; orphaned entries self-clean</li>
-<li><strong>Safe Validation</strong> — Rejects invalid schedules and prompts with un-defaulted parameters before touching the crontab</li>
-<li><strong>Rich Inspection</strong> — <code>list</code>, <code>show</code>, <code>check</code>, <code>next</code>, <code>last</code>, and <code>dry-run</code> commands</li>
+<li>Natural Language Scheduling</li>
+<li>Zero Configuration</li>
+<li>Reliable Cron Environment</li>
+<li>MCP Server Support</li>
+<li>Per-Prompt Overrides</li>
+<li>Schedule-Specific Config</li>
+<li>Single-Prompt Control</li>
+<li>Full Sync on Update</li>
+<li>Safe Validation</li>
+<li>Rich Inspection Commands</li>
 </ul>
 </td>
 </tr>
@@ -1293,14 +1304,43 @@
 
 <p><code>aias</code> turns any AIA prompt into a recurring batch job by reading a <code>schedule:</code> key directly from its YAML frontmatter. It scans your prompts directory, validates each scheduled prompt, and installs the results into your crontab.</p>
 <hr />
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$ aias help
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Commands:
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  aias add PATH              # Add (or replace) a single scheduled prompt in the crontab
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  aias check                 # Diff view: scheduled prompts vs what is installed
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  aias clear                 # Remove all aias-managed crontab entries
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  aias dry-run               # Show what `update` would write without touching the crontab
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  aias help [COMMAND]        # Describe available commands or one specific command
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  aias install [PATTERN...]  # Capture PATH, API keys, and env vars into ~/.config/aia/schedule/env.sh
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  aias last [N]              # Show last-run time for installed jobs (default 5)
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  aias list                  # List all installed aias cron jobs
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  aias next [N]              # Show next scheduled run time for installed jobs (default 5)
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  aias remove PROMPT_ID      # Remove a single scheduled prompt from the crontab
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  aias show PROMPT_ID        # Show the installed crontab entry for a single prompt
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  aias uninstall             # Remove managed env block from ~/.config/aia/schedule/env.sh
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  aias update                # Scan prompts, regenerate all crontab entries, and install
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>  aias version               # Print the aias version
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>Options:
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  -p, [--prompts-dir=PROMPTS_DIR]  # Prompts directory (overrides AIA_PROMPTS__DIR / AIA_PROMPTS_DIR env vars)
+</span></code></pre></div>
+<hr />
 <h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>AIA prompt files  ──►  PromptScanner  ──►  Validator  ──►  JobBuilder  ──►  CrontabManager
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>(YAML frontmatter)      grep + parse       syntax +          whenever          crontab block
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                                           binary check       DSL string        replace
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                                                                    │
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                                                                    ▼
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                                                                            OS cron daemon
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                                                     aia &lt;prompt_id&gt; &gt;&gt; log 2&gt;&amp;1
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Prompt file with schedule: in YAML frontmatter
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>         │
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>         ▼
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>aias update scans prompts directory for schedule: keys
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>         │
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>         ▼
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Each prompt is validated: schedule syntax, parameter defaults, aia binary
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>         │
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>         ▼
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>A cron entry is written for each valid prompt
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>         │
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>         ▼
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>OS cron daemon runs each job on schedule:
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>  source env.sh &amp;&amp; aia [--prompts-dir DIR] prompt_id &gt; log 2&gt;&amp;1
 </span></code></pre></div>
 <hr />
 <h2 id="core-design-principles">Core Design Principles<a class="headerlink" href="#core-design-principles" title="Permanent link">&para;</a></h2>
@@ -1310,11 +1350,11 @@
 <p><strong>Explicit environment capture.</strong> <code>aias install</code> snapshots your live PATH, API keys, and AIA variables into <code>~/.config/aia/schedule/env.sh</code>. Every cron entry sources that file, giving <code>aia</code> the same environment it has in your interactive shell — without relying on a login shell that may rebuild PATH unexpectedly.</p>
 <hr />
 <h2 id="at-a-glance">At a Glance<a class="headerlink" href="#at-a-glance" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Add schedule: to a prompt&#39;s frontmatter, then:</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aias<span class="w"> </span>update<span class="w">     </span><span class="c1"># install all scheduled prompts into crontab</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>aias<span class="w"> </span>check<span class="w">      </span><span class="c1"># diff: prompts with schedule: vs what is installed</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>aias<span class="w"> </span>list<span class="w">       </span><span class="c1"># show all installed jobs</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>aias<span class="w"> </span>dry-run<span class="w">    </span><span class="c1"># preview what update would write</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Add schedule: to a prompt&#39;s frontmatter, then:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>aias<span class="w"> </span>update<span class="w">     </span><span class="c1"># install all scheduled prompts into crontab</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>aias<span class="w"> </span>check<span class="w">      </span><span class="c1"># diff: prompts with schedule: vs what is installed</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>aias<span class="w"> </span>list<span class="w">       </span><span class="c1"># show all installed jobs</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>aias<span class="w"> </span>dry-run<span class="w">    </span><span class="c1"># preview what update would write</span>
 </span></code></pre></div>
 <p>See the <a href="getting-started/quick-start/">Quick Start</a> to get running in under five minutes.</p>
 
